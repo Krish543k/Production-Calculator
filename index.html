@@ -1,0 +1,1511 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Production Calculator</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #000000;
+            min-height: 100vh;
+            padding: 15px;
+            transition: background 0.3s ease;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        /* JARVIS-style animated background with multiple layers */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                radial-gradient(circle at 20% 50%, rgba(0, 255, 255, 0.15) 0%, transparent 50%),
+                radial-gradient(circle at 80% 80%, rgba(0, 150, 255, 0.15) 0%, transparent 50%),
+                radial-gradient(circle at 40% 20%, rgba(0, 200, 255, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 60% 60%, rgba(100, 200, 255, 0.08) 0%, transparent 40%);
+            animation: pulse 4s ease-in-out infinite;
+            z-index: 0;
+        }
+
+        @keyframes pulse {
+            0%, 100% { 
+                opacity: 0.6;
+                transform: scale(1);
+            }
+            50% { 
+                opacity: 1;
+                transform: scale(1.05);
+            }
+        }
+
+        /* Animated grid lines - more visible */
+        body::after {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                linear-gradient(rgba(0, 255, 255, 0.05) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0, 255, 255, 0.05) 1px, transparent 1px);
+            background-size: 40px 40px;
+            animation: gridMove 15s linear infinite;
+            z-index: 0;
+        }
+
+        @keyframes gridMove {
+            0% { transform: translate(0, 0); }
+            100% { transform: translate(40px, 40px); }
+        }
+
+        /* Hexagon pattern overlay */
+        .hex-pattern {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                radial-gradient(circle at center, transparent 40%, rgba(0, 255, 255, 0.02) 41%, transparent 42%);
+            background-size: 60px 60px;
+            animation: hexRotate 30s linear infinite;
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        @keyframes hexRotate {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Floating particles */
+        .particle {
+            position: fixed;
+            width: 3px;
+            height: 3px;
+            background: rgba(0, 255, 255, 0.6);
+            border-radius: 50%;
+            box-shadow: 0 0 10px rgba(0, 255, 255, 0.8);
+            animation: float 8s infinite;
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        @keyframes float {
+            0%, 100% { 
+                transform: translateY(0) translateX(0);
+                opacity: 0;
+            }
+            10% { opacity: 1; }
+            90% { opacity: 1; }
+            100% { 
+                transform: translateY(-100vh) translateX(50px);
+                opacity: 0;
+            }
+        }
+
+        body.dark-mode {
+            background: #000000;
+        }
+
+        body.dark-mode .container {
+            background: rgba(5, 15, 30, 0.95);
+            color: #00ffff;
+            border: 2px solid rgba(0, 255, 255, 0.4);
+            box-shadow: 
+                0 0 40px rgba(0, 255, 255, 0.3),
+                0 0 80px rgba(0, 150, 255, 0.2),
+                inset 0 0 40px rgba(0, 255, 255, 0.08);
+            position: relative;
+        }
+
+        body.dark-mode .container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, #00ffff, transparent);
+            animation: borderGlow 2s linear infinite;
+        }
+
+        @keyframes borderGlow {
+            0% { opacity: 0.3; }
+            50% { opacity: 1; }
+            100% { opacity: 0.3; }
+        }
+
+        body.dark-mode input[type="number"] {
+            background: rgba(0, 30, 60, 0.9);
+            color: #00ffff;
+            border-color: rgba(0, 255, 255, 0.6);
+            box-shadow: 
+                0 0 15px rgba(0, 255, 255, 0.3),
+                inset 0 0 10px rgba(0, 100, 150, 0.3);
+            text-shadow: 0 0 5px rgba(0, 255, 255, 0.5);
+        }
+
+        body.dark-mode input[type="number"]:focus {
+            border-color: #00ffff;
+            box-shadow: 
+                0 0 25px rgba(0, 255, 255, 0.6),
+                inset 0 0 15px rgba(0, 150, 200, 0.4);
+            animation: inputPulse 1.5s ease-in-out infinite;
+        }
+
+        @keyframes inputPulse {
+            0%, 100% { box-shadow: 0 0 25px rgba(0, 255, 255, 0.6), inset 0 0 15px rgba(0, 150, 200, 0.4); }
+            50% { box-shadow: 0 0 35px rgba(0, 255, 255, 0.8), inset 0 0 20px rgba(0, 150, 200, 0.6); }
+        }
+
+        body.dark-mode .result-item {
+            background: rgba(0, 30, 60, 0.7);
+            border: 1px solid rgba(0, 255, 255, 0.4);
+            box-shadow: 
+                0 0 20px rgba(0, 255, 255, 0.2),
+                inset 0 0 15px rgba(0, 100, 150, 0.2);
+            position: relative;
+            overflow: hidden;
+        }
+
+        body.dark-mode .result-item::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(0, 255, 255, 0.1), transparent);
+            animation: shimmer 3s infinite;
+        }
+
+        @keyframes shimmer {
+            0% { left: -100%; }
+            100% { left: 100%; }
+        }
+
+        body.dark-mode .result-label {
+            color: #00ffff;
+            text-shadow: 0 0 8px rgba(0, 255, 255, 0.6);
+        }
+
+        body.dark-mode .result-value {
+            color: #00ffff;
+            text-shadow: 0 0 15px rgba(0, 255, 255, 1);
+            animation: valueGlow 2s ease-in-out infinite;
+        }
+
+        @keyframes valueGlow {
+            0%, 100% { text-shadow: 0 0 15px rgba(0, 255, 255, 1); }
+            50% { text-shadow: 0 0 25px rgba(0, 255, 255, 1), 0 0 35px rgba(0, 200, 255, 0.8); }
+        }
+
+        body.dark-mode .results {
+            background: rgba(0, 20, 40, 0.5);
+            border: 1px solid rgba(0, 255, 255, 0.3);
+            box-shadow: 0 0 30px rgba(0, 255, 255, 0.2);
+        }
+
+        body.dark-mode .range-box.lowest {
+            background: rgba(0, 100, 255, 0.25);
+            border: 2px solid rgba(0, 150, 255, 0.7);
+            box-shadow: 
+                0 0 20px rgba(0, 150, 255, 0.4),
+                inset 0 0 20px rgba(0, 100, 200, 0.2);
+        }
+
+        body.dark-mode .range-box.highest {
+            background: rgba(255, 0, 100, 0.25);
+            border: 2px solid rgba(255, 50, 100, 0.7);
+            box-shadow: 
+                0 0 20px rgba(255, 50, 100, 0.4),
+                inset 0 0 20px rgba(200, 0, 80, 0.2);
+        }
+
+        body.dark-mode .formula-info {
+            background: rgba(0, 50, 100, 0.4);
+            border-left: 4px solid #00ffff;
+            box-shadow: 
+                0 0 20px rgba(0, 255, 255, 0.3),
+                inset 0 0 20px rgba(0, 100, 150, 0.2);
+        }
+
+        body.dark-mode .formula-info h3,
+        body.dark-mode .formula-info p {
+            color: #00ffff;
+            text-shadow: 0 0 8px rgba(0, 255, 255, 0.6);
+        }
+
+        body.dark-mode header {
+            background: rgba(0, 50, 100, 0.9);
+            border: 1px solid rgba(0, 255, 255, 0.4);
+            box-shadow: 
+                0 0 30px rgba(0, 255, 255, 0.4),
+                inset 0 0 20px rgba(0, 100, 150, 0.2);
+        }
+
+        .container {
+            max-width: 450px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            position: relative;
+            z-index: 1;
+        }
+
+        header {
+            background: #667eea;
+            color: white;
+            padding: 12px 18px;
+            border-radius: 8px 8px 0 0;
+            margin: -20px -20px 20px -20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .header-right {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+        }
+
+        .dark-mode-toggle, .settings-btn {
+            cursor: pointer;
+            font-size: 22px;
+            transition: transform 0.3s, filter 0.3s;
+            filter: drop-shadow(0 0 5px rgba(255, 255, 255, 0.5));
+        }
+
+        .dark-mode-toggle:hover, .settings-btn:hover {
+            transform: scale(1.3) rotate(20deg);
+            filter: drop-shadow(0 0 15px rgba(0, 255, 255, 1));
+        }
+
+        /* Settings Panel */
+        .settings-panel {
+            position: fixed;
+            top: 0;
+            right: -350px;
+            width: 320px;
+            height: 100vh;
+            background: white;
+            box-shadow: -5px 0 20px rgba(0,0,0,0.3);
+            transition: right 0.3s ease;
+            z-index: 1000;
+            overflow-y: auto;
+            padding: 20px;
+        }
+
+        .settings-panel.open {
+            right: 0;
+        }
+
+        body.dark-mode .settings-panel {
+            background: rgba(5, 15, 30, 0.98);
+            border-left: 2px solid rgba(0, 255, 255, 0.4);
+            box-shadow: -5px 0 30px rgba(0, 255, 255, 0.3);
+        }
+
+        .settings-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #e0e0e0;
+        }
+
+        body.dark-mode .settings-header {
+            border-bottom-color: rgba(0, 255, 255, 0.3);
+        }
+
+        .settings-title {
+            font-size: 20px;
+            font-weight: 700;
+            color: #333;
+        }
+
+        body.dark-mode .settings-title {
+            color: #00ffff;
+            text-shadow: 0 0 10px rgba(0, 255, 255, 0.6);
+        }
+
+        .close-settings {
+            cursor: pointer;
+            font-size: 28px;
+            color: #666;
+            transition: transform 0.3s;
+        }
+
+        .close-settings:hover {
+            transform: rotate(90deg);
+            color: #f44336;
+        }
+
+        body.dark-mode .close-settings {
+            color: #00ffff;
+        }
+
+        .settings-section {
+            margin-bottom: 25px;
+        }
+
+        .settings-label {
+            display: block;
+            font-size: 14px;
+            font-weight: 600;
+            color: #555;
+            margin-bottom: 10px;
+        }
+
+        body.dark-mode .settings-label {
+            color: #00ffff;
+        }
+
+        .toggle-switch {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px;
+            background: #f5f5f5;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .toggle-switch:hover {
+            background: #e0e0e0;
+        }
+
+        body.dark-mode .toggle-switch {
+            background: rgba(0, 30, 60, 0.6);
+            border: 1px solid rgba(0, 255, 255, 0.3);
+        }
+
+        body.dark-mode .toggle-switch:hover {
+            background: rgba(0, 40, 80, 0.8);
+        }
+
+        .switch {
+            position: relative;
+            width: 50px;
+            height: 26px;
+            background: #ccc;
+            border-radius: 13px;
+            transition: background 0.3s;
+        }
+
+        .switch.active {
+            background: #4caf50;
+        }
+
+        body.dark-mode .switch.active {
+            background: #00ffff;
+            box-shadow: 0 0 10px rgba(0, 255, 255, 0.6);
+        }
+
+        .switch-knob {
+            position: absolute;
+            top: 3px;
+            left: 3px;
+            width: 20px;
+            height: 20px;
+            background: white;
+            border-radius: 50%;
+            transition: left 0.3s;
+        }
+
+        .switch.active .switch-knob {
+            left: 27px;
+        }
+
+        .weight-dropdown {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 15px;
+            font-weight: 600;
+            background: white;
+            cursor: pointer;
+        }
+
+        body.dark-mode .weight-dropdown {
+            background: rgba(0, 30, 60, 0.8);
+            color: #00ffff;
+            border-color: rgba(0, 255, 255, 0.5);
+        }
+
+        .color-picker-wrapper {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .color-picker {
+            width: 60px;
+            height: 40px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+
+        body.dark-mode .color-picker {
+            border-color: rgba(0, 255, 255, 0.5);
+        }
+
+        .color-preview {
+            flex: 1;
+            padding: 10px;
+            border-radius: 8px;
+            text-align: center;
+            font-weight: 600;
+            font-size: 13px;
+        }
+
+        .settings-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            display: none;
+            z-index: 999;
+        }
+
+        .settings-overlay.open {
+            display: block;
+        }
+
+        /* Loading Screen */
+        .loading-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #000000;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            animation: fadeOut 0.5s ease 4s forwards;
+        }
+
+        @keyframes fadeOut {
+            to {
+                opacity: 0;
+                visibility: hidden;
+            }
+        }
+
+        .loading-content {
+            text-align: center;
+        }
+
+        .loading-title {
+            font-size: 32px;
+            font-weight: 700;
+            color: #00ffff;
+            text-shadow: 
+                0 0 10px rgba(0, 255, 255, 0.8),
+                0 0 20px rgba(0, 255, 255, 0.6),
+                0 0 30px rgba(0, 255, 255, 0.4);
+            margin-bottom: 30px;
+            animation: titlePulse 1.5s ease-in-out infinite;
+        }
+
+        @keyframes titlePulse {
+            0%, 100% { 
+                transform: scale(1);
+                text-shadow: 
+                    0 0 10px rgba(0, 255, 255, 0.8),
+                    0 0 20px rgba(0, 255, 255, 0.6),
+                    0 0 30px rgba(0, 255, 255, 0.4);
+            }
+            50% { 
+                transform: scale(1.05);
+                text-shadow: 
+                    0 0 20px rgba(0, 255, 255, 1),
+                    0 0 40px rgba(0, 255, 255, 0.8),
+                    0 0 60px rgba(0, 255, 255, 0.6);
+            }
+        }
+
+        .loading-spinner {
+            width: 80px;
+            height: 80px;
+            border: 4px solid rgba(0, 255, 255, 0.1);
+            border-top: 4px solid #00ffff;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 40px;
+            box-shadow: 
+                0 0 20px rgba(0, 255, 255, 0.5),
+                inset 0 0 20px rgba(0, 255, 255, 0.2);
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .loading-dots {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin-bottom: 50px;
+        }
+
+        .loading-dot {
+            width: 12px;
+            height: 12px;
+            background: #00ffff;
+            border-radius: 50%;
+            box-shadow: 0 0 15px rgba(0, 255, 255, 0.8);
+            animation: dotPulse 1.4s ease-in-out infinite;
+        }
+
+        .loading-dot:nth-child(1) { animation-delay: 0s; }
+        .loading-dot:nth-child(2) { animation-delay: 0.2s; }
+        .loading-dot:nth-child(3) { animation-delay: 0.4s; }
+
+        @keyframes dotPulse {
+            0%, 100% { 
+                transform: scale(1);
+                opacity: 0.5;
+            }
+            50% { 
+                transform: scale(1.5);
+                opacity: 1;
+            }
+        }
+
+        .loading-footer {
+            position: absolute;
+            bottom: 40px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 14px;
+            color: #00ffff;
+            text-shadow: 0 0 10px rgba(0, 255, 255, 0.6);
+            animation: footerFade 2s ease-in-out infinite;
+            letter-spacing: 2px;
+        }
+
+        @keyframes footerFade {
+            0%, 100% { opacity: 0.6; }
+            50% { opacity: 1; }
+        }
+
+        /* Loading screen scan line */
+        .loading-scan {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 3px;
+            background: linear-gradient(90deg, transparent, rgba(0, 255, 255, 0.9), transparent);
+            box-shadow: 0 0 15px rgba(0, 255, 255, 0.8);
+            animation: loadingScan 2s linear infinite;
+        }
+
+        @keyframes loadingScan {
+            0% { top: 0; opacity: 0; }
+            10% { opacity: 1; }
+            90% { opacity: 1; }
+            100% { top: 100%; opacity: 0; }
+        }
+
+        /* Scan line effect - more visible */
+        .scan-line {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 3px;
+            background: linear-gradient(90deg, transparent, rgba(0, 255, 255, 0.9), transparent);
+            box-shadow: 0 0 10px rgba(0, 255, 255, 0.8);
+            animation: scan 2.5s linear infinite;
+            z-index: 999;
+            pointer-events: none;
+        }
+
+        @keyframes scan {
+            0% { top: 0; opacity: 0; }
+            10% { opacity: 1; }
+            90% { opacity: 1; }
+            100% { top: 100%; opacity: 0; }
+        }
+
+        h1 {
+            color: white;
+            font-size: 20px;
+            font-weight: 700;
+            margin: 0;
+        }
+
+        .range-boxes {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 18px;
+            align-items: stretch;
+        }
+
+        .range-box {
+            flex: 1;
+            padding: 12px;
+            border-radius: 8px;
+            text-align: center;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .range-box:hover {
+            transform: translateY(-3px) scale(1.02);
+        }
+
+        .range-box.lowest {
+            background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
+            border: 2px solid #2196F3;
+        }
+
+        .range-box.highest {
+            background: linear-gradient(135deg, #ffebee 0%, #ffcdd2 100%);
+            border: 2px solid #f44336;
+        }
+
+        /* Weight Selector in Middle */
+        .weight-selector {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 8px;
+            background: linear-gradient(135deg, #f3e5f5 0%, #e1bee7 100%);
+            border: 2px solid #9c27b0;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+            position: relative;
+        }
+
+        .weight-selector:hover {
+            transform: translateY(-3px) scale(1.02);
+            box-shadow: 0 5px 15px rgba(156, 39, 176, 0.3);
+        }
+
+        body.dark-mode .weight-selector {
+            background: rgba(100, 0, 150, 0.25);
+            border: 2px solid rgba(156, 39, 176, 0.7);
+            box-shadow: 
+                0 0 20px rgba(156, 39, 176, 0.4),
+                inset 0 0 20px rgba(100, 0, 150, 0.2);
+        }
+
+        .weight-label {
+            font-size: 9px;
+            font-weight: 700;
+            color: #7b1fa2;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 4px;
+        }
+
+        body.dark-mode .weight-label {
+            color: #ce93d8;
+            text-shadow: 0 0 8px rgba(206, 147, 216, 0.6);
+        }
+
+        .weight-value {
+            font-size: 20px;
+            font-weight: 800;
+            color: #9c27b0;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        body.dark-mode .weight-value {
+            color: #ce93d8;
+            text-shadow: 0 0 15px rgba(206, 147, 216, 1);
+        }
+
+        .weight-arrows {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+            font-size: 10px;
+            color: #9c27b0;
+        }
+
+        body.dark-mode .weight-arrows {
+            color: #ce93d8;
+        }
+
+        .range-label {
+            display: block;
+            font-size: 10px;
+            font-weight: 700;
+            margin-bottom: 6px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .lowest .range-label {
+            color: #1976D2;
+        }
+
+        .highest .range-label {
+            color: #d32f2f;
+        }
+
+        .range-value {
+            display: block;
+            font-size: 20px;
+            font-weight: 800;
+        }
+
+        .lowest .range-value {
+            color: #2196F3;
+        }
+
+        .highest .range-value {
+            color: #f44336;
+        }
+
+        .input-group {
+            margin-bottom: 15px;
+        }
+
+        label {
+            display: block;
+            color: #333;
+            font-weight: 600;
+            margin-bottom: 6px;
+            font-size: 13px;
+        }
+
+        input[type="number"] {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 15px;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+
+        input[type="number"]:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .results {
+            margin-top: 18px;
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            padding: 15px;
+            border-radius: 10px;
+        }
+
+        .result-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px;
+            background: white;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            transition: transform 0.3s;
+            animation: slideIn 0.4s ease;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .result-item:hover {
+            transform: translateX(5px);
+        }
+
+        .result-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .result-label {
+            font-weight: 600;
+            color: #555;
+            font-size: 14px;
+        }
+
+        .result-value {
+            font-size: 22px;
+            font-weight: 800;
+            color: #667eea;
+        }
+
+        .formula-info {
+            background: linear-gradient(135deg, #fff9e6 0%, #fff3cd 100%);
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 15px;
+            border-left: 4px solid #ffc107;
+        }
+
+        .formula-info h3 {
+            color: #856404;
+            margin-bottom: 10px;
+            font-size: 14px;
+            font-weight: 700;
+        }
+
+        .formula-info p {
+            color: #856404;
+            font-size: 12px;
+            line-height: 1.6;
+            margin-bottom: 4px;
+            font-weight: 600;
+        }
+
+        @media (max-width: 480px) {
+            body {
+                padding: 10px;
+            }
+
+            .container {
+                padding: 15px;
+                max-width: 100%;
+            }
+
+            header {
+                margin: -15px -15px 15px -15px;
+                padding: 10px 15px;
+            }
+
+            h1 {
+                font-size: 18px;
+            }
+
+            .range-value {
+                font-size: 18px;
+            }
+
+            .result-value {
+                font-size: 20px;
+            }
+
+            .range-label {
+                font-size: 9px;
+            }
+
+            input[type="number"] {
+                padding: 10px;
+                font-size: 14px;
+            }
+            
+            .loading-title {
+                font-size: 24px;
+            }
+            
+            .loading-spinner {
+                width: 60px;
+                height: 60px;
+            }
+            
+            .loading-footer {
+                font-size: 12px;
+                bottom: 30px;
+            }
+        }
+                font-size: 14px;
+            }
+        }
+    </style>
+</head>
+<body class="dark-mode">
+    <!-- Loading Screen -->
+    <div class="loading-screen">
+        <div class="loading-scan"></div>
+        <div class="loading-content">
+            <div class="loading-spinner"></div>
+            <div class="loading-title">Production Calculator</div>
+            <div class="loading-dots">
+                <div class="loading-dot"></div>
+                <div class="loading-dot"></div>
+                <div class="loading-dot"></div>
+            </div>
+        </div>
+        <div class="loading-footer">Created by Krishna.....</div>
+    </div>
+    
+    <!-- Settings Overlay -->
+    <div class="settings-overlay" id="settingsOverlay" onclick="closeSettings()"></div>
+    
+    <!-- Settings Panel -->
+    <div class="settings-panel" id="settingsPanel">
+        <div class="settings-header">
+            <span class="settings-title">⚙️ Settings</span>
+            <span class="close-settings" onclick="closeSettings()">×</span>
+        </div>
+
+        <!-- Manual Weight Selection -->
+        <div class="settings-section">
+            <label class="settings-label">📦 Select Weight</label>
+            <select class="weight-dropdown" id="weightDropdown" onchange="changeWeightManually()">
+                <option value="0">300g</option>
+                <option value="1">500g</option>
+                <option value="2">850g</option>
+                <option value="3">900g</option>
+                <option value="4">1kg</option>
+                <option value="5">2kg</option>
+                <option value="6">3kg</option>
+                <option value="7">3.2kg</option>
+                <option value="8">4kg</option>
+                <option value="9">5kg</option>
+                <option value="10">6kg</option>
+            </select>
+        </div>
+
+        <!-- JARVIS Lines Toggle -->
+        <div class="settings-section">
+            <label class="settings-label">✨ JARVIS Effects</label>
+            <div class="toggle-switch" onclick="toggleJarvisLines()">
+                <span>Animated Lines</span>
+                <div class="switch active" id="jarvisSwitch">
+                    <div class="switch-knob"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sound Toggle -->
+        <div class="settings-section">
+            <label class="settings-label">🔊 Sound Effects</label>
+            <div class="toggle-switch" onclick="toggleSound()">
+                <span>Enable Sounds</span>
+                <div class="switch active" id="soundSwitch">
+                    <div class="switch-knob"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Theme Toggle -->
+        <div class="settings-section">
+            <label class="settings-label">🌓 Theme</label>
+            <div class="toggle-switch" onclick="toggleDarkMode()">
+                <span id="themeLabel">Dark Mode</span>
+                <div class="switch active" id="themeSwitch">
+                    <div class="switch-knob"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Custom Color -->
+        <div class="settings-section">
+            <label class="settings-label">🎨 Custom Accent Color</label>
+            <div class="color-picker-wrapper">
+                <input type="color" class="color-picker" id="accentColor" value="#00ffff" onchange="changeAccentColor()">
+                <div class="color-preview" id="colorPreview" style="background: #00ffff; color: white;">
+                    #00ffff
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- JARVIS scan line effect -->
+    <div class="scan-line" id="scanLine"></div>
+    
+    <!-- Hexagon pattern overlay -->
+    <div class="hex-pattern"></div>
+    
+    <!-- Floating particles -->
+    <div class="particle" style="left: 10%; animation-delay: 0s;"></div>
+    <div class="particle" style="left: 25%; animation-delay: 2s;"></div>
+    <div class="particle" style="left: 40%; animation-delay: 4s;"></div>
+    <div class="particle" style="left: 55%; animation-delay: 1s;"></div>
+    <div class="particle" style="left: 70%; animation-delay: 3s;"></div>
+    <div class="particle" style="left: 85%; animation-delay: 5s;"></div>
+    
+    <div class="container">
+        <header>
+            <h1>🏭 Production Calculator</h1>
+            <div class="header-right">
+                <div class="dark-mode-toggle" onclick="toggleDarkMode()" title="Toggle Mode">
+                    <span id="darkModeIcon">☀️</span>
+                </div>
+                <div class="settings-btn" onclick="openSettings()" title="Settings">
+                    ⋮
+                </div>
+            </div>
+        </header>
+
+        <!-- 10% Range Boxes at Top with Weight Selector -->
+        <div class="range-boxes">
+            <div class="range-box lowest">
+                <span class="range-label">📉 Lowest 10%</span>
+                <span class="range-value" id="shipperLowest">0</span>
+            </div>
+            
+            <!-- Weight Selector in Middle -->
+            <div class="weight-selector" onclick="cycleWeight()">
+                <span class="weight-label">⚖️ WEIGHT</span>
+                <div class="weight-value">
+                    <span id="currentWeight">1kg</span>
+                    <div class="weight-arrows">
+                        <span>▲</span>
+                        <span>▼</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="range-box highest">
+                <span class="range-label">📈 Highest 10%</span>
+                <span class="range-value" id="shipperHighest">0</span>
+            </div>
+        </div>
+
+        <!-- Input Fields -->
+        <div class="input-group">
+            <label for="pouchCount">📦 Pouch Count</label>
+            <input type="number" id="pouchCount" placeholder="Enter pouches" min="0" step="1" oninput="calculateFromPouch()">
+        </div>
+
+        <div class="input-group">
+            <label for="shipperCount">📦 Shipper Count</label>
+            <input type="number" id="shipperCount" placeholder="Enter shippers" min="0" step="0.01" oninput="calculateFromShipper()">
+        </div>
+
+        <div class="input-group">
+            <label for="palletCount">🚛 Pallet Count</label>
+            <input type="number" id="palletCount" placeholder="Enter pallets" min="0" step="0.01" oninput="calculateFromPallet()">
+        </div>
+
+        <!-- Results -->
+        <div class="results">
+            <div class="result-item">
+                <span class="result-label">📦 Total Pouches</span>
+                <span class="result-value" id="pouchResult">0</span>
+            </div>
+            <div class="result-item">
+                <span class="result-label">📦 Total Shippers</span>
+                <span class="result-value" id="shipperResult">0</span>
+            </div>
+            <div class="result-item">
+                <span class="result-label">🚛 Total Pallets</span>
+                <span class="result-value" id="palletResult">0</span>
+            </div>
+        </div>
+
+        <!-- Formula Info -->
+        <div class="formula-info">
+            <h3>📋 Formula (<span id="formulaWeight">300g</span>)</h3>
+            <p id="formula1">✓ 24 Pouch = 1 Shipper</p>
+            <p id="formula2">✓ 42 Shipper = 1 Pallet</p>
+            <p id="formula3">✓ 1008 Pouch = 1 Pallet</p>
+        </div>
+    </div>
+
+    <!-- Typing Sound -->
+    <audio id="typingSound" preload="auto">
+        <source src="data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+DyvmwhBSuBzvLZiTYIGGS57OihUBELTKXh8bllHAU2jdXvzn0pBSh+zPDajzsKElyx6OyrWBQLSKDf8sFuJAUuhM/z24k2CBhku+zooVARC0yl4fG5ZRwFNo3V7859KQUofsz
+w2QjzsKElyx6OyrWBQLSKDf8sFuJAUuhM/z24k2CBhku+zooVARC0yl4fG5ZRwFNo3V7859KQUofsz
+w2QjzsKE==" type="audio/wav">
+    </audio>
+
+    <!-- Weight Change Sound -->
+    <audio id="weightSound" preload="auto">
+        <source src="data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+DyvmwhBSuBzvLZiTYIGGS57OihUBELTKXh8bllHAU2jdXvzn0pBSh+zPDajzsKElyx6OyrWBQLSKDf8sFuJAUuhM/z24k2CBhku+zooVARC0yl4fG5ZRwFNo3V7859KQUofsz
+w2QjzsKElyx6OyrWBQLSKDf8sFuJAUuhM/z24k2CBhku+zooVARC0yl4fG5ZRwFNo3V7859KQUofsz
+w2QjzsKE==" type="audio/wav">
+    </audio>
+
+    <script>
+        let isCalculating = false;
+        let currentWeightIndex = 0;
+        let soundEnabled = true; // Sound enabled by default
+        const weights = ['300g', '500g', '850g', '900g', '1kg', '2kg', '3kg', '3.2kg', '4kg', '5kg', '6kg'];
+        
+        // Formulas for each weight
+        const formulas = {
+            '300g': { pouchToShipper: 24, shipperToPallet: 42, pouchToPallet: 1008 },
+            '500g': { pouchToShipper: 24, shipperToPallet: 36, pouchToPallet: 864 },
+            '850g': { pouchToShipper: 12, shipperToPallet: 50, pouchToPallet: 600 },
+            '900g': { pouchToShipper: 12, shipperToPallet: 50, pouchToPallet: 600 },
+            '1kg': { pouchToShipper: 12, shipperToPallet: 50, pouchToPallet: 600 },
+            '2kg': { pouchToShipper: 6, shipperToPallet: 40, pouchToPallet: 240 },
+            '3kg': { pouchToShipper: 4, shipperToPallet: 40, pouchToPallet: 160 },
+            '3.2kg': { pouchToShipper: 4, shipperToPallet: 40, pouchToPallet: 160 },
+            '4kg': { pouchToShipper: 4, shipperToPallet: 32, pouchToPallet: 128 },
+            '5kg': { pouchToShipper: 2, shipperToPallet: 60, pouchToPallet: 120 },
+            '6kg': { pouchToShipper: 2, shipperToPallet: 45, pouchToPallet: 90 }
+        };
+
+        // Settings functions
+        function openSettings() {
+            document.getElementById('settingsPanel').classList.add('open');
+            document.getElementById('settingsOverlay').classList.add('open');
+            playWeightSound();
+        }
+
+        function closeSettings() {
+            document.getElementById('settingsPanel').classList.remove('open');
+            document.getElementById('settingsOverlay').classList.remove('open');
+        }
+
+        function changeWeightManually() {
+            const dropdown = document.getElementById('weightDropdown');
+            currentWeightIndex = parseInt(dropdown.value);
+            const currentWeight = weights[currentWeightIndex];
+            
+            document.getElementById('currentWeight').textContent = currentWeight;
+            document.getElementById('formulaWeight').textContent = currentWeight;
+            playWeightSound();
+            
+            // Update formula display
+            const formula = getCurrentFormula();
+            document.getElementById('formula1').textContent = `✓ ${formula.pouchToShipper} Pouch = 1 Shipper`;
+            document.getElementById('formula2').textContent = `✓ ${formula.shipperToPallet} Shipper = 1 Pallet`;
+            document.getElementById('formula3').textContent = `✓ ${formula.pouchToPallet} Pouch = 1 Pallet`;
+            
+            // Recalculate
+            const pouchInput = document.getElementById('pouchCount');
+            const shipperInput = document.getElementById('shipperCount');
+            const palletInput = document.getElementById('palletCount');
+            
+            if (pouchInput.value) {
+                calculateFromPouch();
+            } else if (shipperInput.value) {
+                calculateFromShipper();
+            } else if (palletInput.value) {
+                calculateFromPallet();
+            }
+        }
+
+        function toggleJarvisLines() {
+            const jarvisSwitch = document.getElementById('jarvisSwitch');
+            const scanLine = document.getElementById('scanLine');
+            const hexPattern = document.querySelector('.hex-pattern');
+            const particles = document.querySelectorAll('.particle');
+            
+            jarvisSwitch.classList.toggle('active');
+            
+            if (jarvisSwitch.classList.contains('active')) {
+                scanLine.style.display = 'block';
+                if (hexPattern) hexPattern.style.display = 'block';
+                particles.forEach(p => p.style.display = 'block');
+                localStorage.setItem('jarvisLines', 'enabled');
+            } else {
+                scanLine.style.display = 'none';
+                if (hexPattern) hexPattern.style.display = 'none';
+                particles.forEach(p => p.style.display = 'none');
+                localStorage.setItem('jarvisLines', 'disabled');
+            }
+            playWeightSound();
+        }
+
+        function toggleSound() {
+            const soundSwitch = document.getElementById('soundSwitch');
+            soundSwitch.classList.toggle('active');
+            
+            soundEnabled = soundSwitch.classList.contains('active');
+            
+            if (soundEnabled) {
+                localStorage.setItem('soundEnabled', 'enabled');
+                playWeightSound(); // Play sound to confirm it's ON
+            } else {
+                localStorage.setItem('soundEnabled', 'disabled');
+            }
+        }
+
+        function changeAccentColor() {
+            const color = document.getElementById('accentColor').value;
+            document.getElementById('colorPreview').style.background = color;
+            document.getElementById('colorPreview').textContent = color;
+            
+            // Apply color to various elements
+            document.documentElement.style.setProperty('--accent-color', color);
+            localStorage.setItem('accentColor', color);
+            playWeightSound();
+        }
+
+        // Play typing sound
+        function playSound() {
+            if (!soundEnabled) return; // Check if sound is enabled
+            try {
+                const sound = document.getElementById('typingSound');
+                if (sound) {
+                    sound.currentTime = 0;
+                    sound.volume = 0.3;
+                    sound.play().catch(() => {});
+                }
+            } catch (e) {}
+        }
+
+        // Play weight change sound - using Web Audio API for better compatibility
+        function playWeightSound() {
+            if (!soundEnabled) return; // Check if sound is enabled
+            try {
+                // Try HTML5 audio first
+                const sound = document.getElementById('weightSound');
+                if (sound) {
+                    sound.currentTime = 0;
+                    sound.volume = 0.5;
+                    sound.play().catch(() => {});
+                }
+                
+                // Also create a beep using Web Audio API as backup
+                const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                const oscillator = audioContext.createOscillator();
+                const gainNode = audioContext.createGain();
+                
+                oscillator.connect(gainNode);
+                gainNode.connect(audioContext.destination);
+                
+                oscillator.frequency.value = 800; // Frequency in Hz
+                oscillator.type = 'sine';
+                
+                gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+                gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.1);
+                
+                oscillator.start(audioContext.currentTime);
+                oscillator.stop(audioContext.currentTime + 0.1);
+            } catch (e) {
+                console.log('Sound not supported');
+            }
+        }
+
+        // Cycle through weights
+        function cycleWeight() {
+            currentWeightIndex = (currentWeightIndex + 1) % weights.length;
+            const currentWeight = weights[currentWeightIndex];
+            document.getElementById('currentWeight').textContent = currentWeight;
+            document.getElementById('formulaWeight').textContent = currentWeight;
+            playWeightSound();
+            
+            // Update formula display
+            const formula = getCurrentFormula();
+            document.getElementById('formula1').textContent = `✓ ${formula.pouchToShipper} Pouch = 1 Shipper`;
+            document.getElementById('formula2').textContent = `✓ ${formula.shipperToPallet} Shipper = 1 Pallet`;
+            document.getElementById('formula3').textContent = `✓ ${formula.pouchToPallet} Pouch = 1 Pallet`;
+            
+            // Recalculate with new formula
+            const pouchInput = document.getElementById('pouchCount');
+            const shipperInput = document.getElementById('shipperCount');
+            const palletInput = document.getElementById('palletCount');
+            
+            if (pouchInput.value) {
+                calculateFromPouch();
+            } else if (shipperInput.value) {
+                calculateFromShipper();
+            } else if (palletInput.value) {
+                calculateFromPallet();
+            }
+        }
+
+        // Get current formula
+        function getCurrentFormula() {
+            return formulas[weights[currentWeightIndex]];
+        }
+
+        // Update 10% range boxes
+        function updateShipperRange(shipperCount) {
+            const lowest = shipperCount * 0.9;  // -10%
+            const highest = shipperCount * 1.1; // +10%
+            
+            document.getElementById('shipperLowest').textContent = lowest.toFixed(2);
+            document.getElementById('shipperHighest').textContent = highest.toFixed(2);
+        }
+
+        function calculateFromPouch() {
+            if (isCalculating) return;
+            isCalculating = true;
+            playSound();
+
+            const formula = getCurrentFormula();
+            const pouchCount = parseFloat(document.getElementById('pouchCount').value) || 0;
+            
+            const shipperCount = pouchCount / formula.pouchToShipper;
+            const palletCount = pouchCount / formula.pouchToPallet;
+
+            document.getElementById('shipperCount').value = shipperCount.toFixed(2);
+            document.getElementById('palletCount').value = palletCount.toFixed(2);
+
+            updateResults(pouchCount, shipperCount, palletCount);
+            updateShipperRange(shipperCount);
+
+            isCalculating = false;
+        }
+
+        function calculateFromShipper() {
+            if (isCalculating) return;
+            isCalculating = true;
+            playSound();
+
+            const formula = getCurrentFormula();
+            const shipperCount = parseFloat(document.getElementById('shipperCount').value) || 0;
+            
+            const pouchCount = shipperCount * formula.pouchToShipper;
+            const palletCount = shipperCount / formula.shipperToPallet;
+
+            document.getElementById('pouchCount').value = Math.round(pouchCount);
+            document.getElementById('palletCount').value = palletCount.toFixed(2);
+
+            updateResults(pouchCount, shipperCount, palletCount);
+            updateShipperRange(shipperCount);
+
+            isCalculating = false;
+        }
+
+        function calculateFromPallet() {
+            if (isCalculating) return;
+            isCalculating = true;
+            playSound();
+
+            const formula = getCurrentFormula();
+            const palletCount = parseFloat(document.getElementById('palletCount').value) || 0;
+            
+            const pouchCount = palletCount * formula.pouchToPallet;
+            const shipperCount = palletCount * formula.shipperToPallet;
+
+            document.getElementById('pouchCount').value = Math.round(pouchCount);
+            document.getElementById('shipperCount').value = shipperCount.toFixed(2);
+
+            updateResults(pouchCount, shipperCount, palletCount);
+            updateShipperRange(shipperCount);
+
+            isCalculating = false;
+        }
+
+        function updateResults(pouch, shipper, pallet) {
+            document.getElementById('pouchResult').textContent = Math.round(pouch).toLocaleString();
+            document.getElementById('shipperResult').textContent = shipper.toFixed(2);
+            document.getElementById('palletResult').textContent = pallet.toFixed(2);
+        }
+
+        // Add input event listeners for all fields
+        document.querySelectorAll('input[type="number"]').forEach(input => {
+            input.addEventListener('input', () => {
+                playSound();
+            });
+            input.addEventListener('keydown', () => {
+                playSound();
+            });
+        });
+
+        // Dark mode toggle
+        function toggleDarkMode() {
+            const body = document.body;
+            const icon = document.getElementById('darkModeIcon');
+            const themeSwitch = document.getElementById('themeSwitch');
+            const themeLabel = document.getElementById('themeLabel');
+            
+            body.classList.toggle('dark-mode');
+            
+            if (body.classList.contains('dark-mode')) {
+                icon.textContent = '☀️';
+                themeLabel.textContent = 'Dark Mode';
+                themeSwitch.classList.add('active');
+                localStorage.setItem('calculatorDarkMode', 'enabled');
+            } else {
+                icon.textContent = '🌙';
+                themeLabel.textContent = 'Light Mode';
+                themeSwitch.classList.remove('active');
+                localStorage.setItem('calculatorDarkMode', 'disabled');
+            }
+        }
+
+        // Load dark mode preference
+        window.onload = function() {
+            const darkMode = localStorage.getItem('calculatorDarkMode');
+            const body = document.body;
+            const icon = document.getElementById('darkModeIcon');
+            const themeSwitch = document.getElementById('themeSwitch');
+            const themeLabel = document.getElementById('themeLabel');
+            
+            if (darkMode === 'enabled' || darkMode === null) {
+                body.classList.add('dark-mode');
+                icon.textContent = '☀️';
+                themeLabel.textContent = 'Dark Mode';
+                themeSwitch.classList.add('active');
+            } else {
+                body.classList.remove('dark-mode');
+                icon.textContent = '🌙';
+                themeLabel.textContent = 'Light Mode';
+                themeSwitch.classList.remove('active');
+            }
+            
+            // Load JARVIS lines preference
+            const jarvisLines = localStorage.getItem('jarvisLines');
+            const jarvisSwitch = document.getElementById('jarvisSwitch');
+            const scanLine = document.getElementById('scanLine');
+            const hexPattern = document.querySelector('.hex-pattern');
+            const particles = document.querySelectorAll('.particle');
+            
+            if (jarvisLines === 'disabled') {
+                jarvisSwitch.classList.remove('active');
+                scanLine.style.display = 'none';
+                if (hexPattern) hexPattern.style.display = 'none';
+                particles.forEach(p => p.style.display = 'none');
+            }
+            
+            // Load sound preference
+            const soundPref = localStorage.getItem('soundEnabled');
+            const soundSwitch = document.getElementById('soundSwitch');
+            
+            if (soundPref === 'disabled') {
+                soundEnabled = false;
+                soundSwitch.classList.remove('active');
+            } else {
+                soundEnabled = true;
+                soundSwitch.classList.add('active');
+            }
+            
+            // Load accent color
+            const accentColor = localStorage.getItem('accentColor');
+            if (accentColor) {
+                document.getElementById('accentColor').value = accentColor;
+                document.getElementById('colorPreview').style.background = accentColor;
+                document.getElementById('colorPreview').textContent = accentColor;
+                document.documentElement.style.setProperty('--accent-color', accentColor);
+            }
+            
+            // Initialize formula display with current weight
+            const currentWeight = weights[currentWeightIndex];
+            document.getElementById('currentWeight').textContent = currentWeight;
+            document.getElementById('formulaWeight').textContent = currentWeight;
+            document.getElementById('weightDropdown').value = currentWeightIndex;
+            const formula = getCurrentFormula();
+            document.getElementById('formula1').textContent = `✓ ${formula.pouchToShipper} Pouch = 1 Shipper`;
+            document.getElementById('formula2').textContent = `✓ ${formula.shipperToPallet} Shipper = 1 Pallet`;
+            document.getElementById('formula3').textContent = `✓ ${formula.pouchToPallet} Pouch = 1 Pallet`;
+        };
+    </script>
+</body>
+</html>
