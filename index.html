@@ -70,50 +70,14 @@
             100% { transform: translate(40px, 40px); }
         }
 
-        /* Hexagon pattern overlay */
+        /* Hexagon pattern overlay - DISABLED for performance */
         .hex-pattern {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-image: 
-                radial-gradient(circle at center, transparent 40%, rgba(0, 255, 255, 0.02) 41%, transparent 42%);
-            background-size: 60px 60px;
-            animation: hexRotate 30s linear infinite;
-            z-index: 0;
-            pointer-events: none;
+            display: none;
         }
 
-        @keyframes hexRotate {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-
-        /* Floating particles */
+        /* Floating particles - DISABLED for performance */
         .particle {
-            position: fixed;
-            width: 3px;
-            height: 3px;
-            background: rgba(0, 255, 255, 0.6);
-            border-radius: 50%;
-            box-shadow: 0 0 10px rgba(0, 255, 255, 0.8);
-            animation: float 8s infinite;
-            z-index: 0;
-            pointer-events: none;
-        }
-
-        @keyframes float {
-            0%, 100% { 
-                transform: translateY(0) translateX(0);
-                opacity: 0;
-            }
-            10% { opacity: 1; }
-            90% { opacity: 1; }
-            100% { 
-                transform: translateY(-100vh) translateX(50px);
-                opacity: 0;
-            }
+            display: none;
         }
 
         body.dark-mode {
@@ -508,7 +472,7 @@
             justify-content: center;
             align-items: center;
             z-index: 9999;
-            animation: fadeOut 0.5s ease 4s forwards;
+            animation: fadeOut 0.3s ease 1.5s forwards;
         }
 
         @keyframes fadeOut {
@@ -797,6 +761,40 @@
             margin-bottom: 15px;
         }
 
+        .input-row {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .input-full {
+            flex: 1;
+        }
+
+        .input-half {
+            flex: 1;
+        }
+
+        .extra-box {
+            flex: 1;
+            padding: 12px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            text-align: center;
+            font-size: 15px;
+            font-weight: 600;
+            color: #333;
+            transition: all 0.3s;
+        }
+
+        body.dark-mode .extra-box {
+            background: rgba(0, 50, 100, 0.3);
+            border-color: rgba(0, 255, 255, 0.4);
+            color: #00ffff;
+            box-shadow: 0 0 10px rgba(0, 255, 255, 0.2);
+        }
+
         label {
             display: block;
             color: #333;
@@ -943,9 +941,6 @@
             .loading-footer {
                 font-size: 12px;
                 bottom: 30px;
-            }
-        }
-                font-size: 14px;
             }
         }
     </style>
@@ -1099,12 +1094,18 @@
 
         <div class="input-group">
             <label for="shipperCount">📦 Shipper Count</label>
-            <input type="number" id="shipperCount" placeholder="Enter shippers" min="0" step="0.01" oninput="calculateFromShipper()">
+            <div class="input-row">
+                <input type="number" class="input-half" id="shipperCount" placeholder="Shippers" min="0" step="0.01" oninput="calculateFromShipper()">
+                <div class="extra-box" id="extraPouch">+ 0 Pouch</div>
+            </div>
         </div>
 
         <div class="input-group">
             <label for="palletCount">🚛 Pallet Count</label>
-            <input type="number" id="palletCount" placeholder="Enter pallets" min="0" step="0.01" oninput="calculateFromPallet()">
+            <div class="input-row">
+                <input type="number" class="input-half" id="palletCount" placeholder="Pallets" min="0" step="0.01" oninput="calculateFromPallet()">
+                <div class="extra-box" id="extraShipper">+ 0 Shipper</div>
+            </div>
         </div>
 
         <!-- Results -->
@@ -1353,9 +1354,21 @@ w2QjzsKE==" type="audio/wav">
             
             const shipperCount = pouchCount / formula.pouchToShipper;
             const palletCount = pouchCount / formula.pouchToPallet;
+            
+            // Calculate extra pouch (remainder)
+            const fullShippers = Math.floor(shipperCount);
+            const extraPouch = pouchCount - (fullShippers * formula.pouchToShipper);
+            
+            // Calculate extra shipper (remainder)
+            const fullPallets = Math.floor(palletCount);
+            const extraShipper = Math.floor(shipperCount) - (fullPallets * formula.shipperToPallet);
 
-            document.getElementById('shipperCount').value = shipperCount.toFixed(2);
-            document.getElementById('palletCount').value = palletCount.toFixed(2);
+            document.getElementById('shipperCount').value = fullShippers;
+            document.getElementById('palletCount').value = fullPallets;
+            
+            // Update extra boxes
+            document.getElementById('extraPouch').textContent = `+ ${extraPouch} Pouch`;
+            document.getElementById('extraShipper').textContent = `+ ${extraShipper} Shipper`;
 
             updateResults(pouchCount, shipperCount, palletCount);
             updateShipperRange(shipperCount);
@@ -1373,9 +1386,19 @@ w2QjzsKE==" type="audio/wav">
             
             const pouchCount = shipperCount * formula.pouchToShipper;
             const palletCount = shipperCount / formula.shipperToPallet;
+            
+            // Calculate extra shipper (remainder)
+            const fullPallets = Math.floor(palletCount);
+            const extraShipper = shipperCount - (fullPallets * formula.shipperToPallet);
+            
+            // Extra pouch is 0 when entering shipper directly
+            document.getElementById('extraPouch').textContent = `+ 0 Pouch`;
 
             document.getElementById('pouchCount').value = Math.round(pouchCount);
-            document.getElementById('palletCount').value = palletCount.toFixed(2);
+            document.getElementById('palletCount').value = fullPallets;
+            
+            // Update extra shipper box
+            document.getElementById('extraShipper').textContent = `+ ${extraShipper.toFixed(2)} Shipper`;
 
             updateResults(pouchCount, shipperCount, palletCount);
             updateShipperRange(shipperCount);
@@ -1395,7 +1418,11 @@ w2QjzsKE==" type="audio/wav">
             const shipperCount = palletCount * formula.shipperToPallet;
 
             document.getElementById('pouchCount').value = Math.round(pouchCount);
-            document.getElementById('shipperCount').value = shipperCount.toFixed(2);
+            document.getElementById('shipperCount').value = Math.floor(shipperCount);
+            
+            // Extra boxes are 0 when entering pallet directly
+            document.getElementById('extraPouch').textContent = `+ 0 Pouch`;
+            document.getElementById('extraShipper').textContent = `+ 0 Shipper`;
 
             updateResults(pouchCount, shipperCount, palletCount);
             updateShipperRange(shipperCount);
