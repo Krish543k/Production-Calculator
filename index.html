@@ -668,7 +668,6 @@
             background: linear-gradient(135deg, #f3e5f5 0%, #e1bee7 100%);
             border: 2px solid #9c27b0;
             border-radius: 8px;
-            cursor: pointer;
             transition: all 0.3s;
             position: relative;
         }
@@ -684,6 +683,40 @@
             box-shadow: 
                 0 0 20px rgba(156, 39, 176, 0.4),
                 inset 0 0 20px rgba(100, 0, 150, 0.2);
+        }
+
+        .weight-controls {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .weight-arrow {
+            cursor: pointer;
+            font-size: 18px;
+            padding: 4px 8px;
+            background: rgba(156, 39, 176, 0.2);
+            border-radius: 5px;
+            transition: all 0.3s;
+            user-select: none;
+        }
+
+        .weight-arrow:hover {
+            background: rgba(156, 39, 176, 0.4);
+            transform: scale(1.2);
+        }
+
+        .weight-arrow:active {
+            transform: scale(0.9);
+        }
+
+        body.dark-mode .weight-arrow {
+            background: rgba(156, 39, 176, 0.3);
+            color: #ce93d8;
+        }
+
+        body.dark-mode .weight-arrow:hover {
+            background: rgba(156, 39, 176, 0.5);
         }
 
         .weight-label {
@@ -893,6 +926,121 @@
             font-weight: 600;
         }
 
+        /* Target Calculator Section */
+        .target-section {
+            margin-top: 20px;
+            background: rgba(0, 50, 100, 0.3);
+            padding: 15px;
+            border-radius: 10px;
+            border: 2px solid rgba(0, 255, 255, 0.3);
+        }
+
+        body.dark-mode .target-section {
+            background: rgba(0, 30, 60, 0.5);
+            border-color: rgba(0, 255, 255, 0.4);
+            box-shadow: 0 0 20px rgba(0, 255, 255, 0.2);
+        }
+
+        .target-row {
+            display: flex;
+            gap: 10px;
+            align-items: flex-end;
+        }
+
+        .target-input-box {
+            flex: 1;
+        }
+
+        .target-input-box label {
+            display: block;
+            color: #00ffff;
+            font-size: 13px;
+            font-weight: 600;
+            margin-bottom: 6px;
+        }
+
+        .target-input-box input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid rgba(0, 255, 255, 0.5);
+            border-radius: 8px;
+            font-size: 15px;
+            font-weight: 600;
+            background: rgba(0, 30, 60, 0.8);
+            color: #00ffff;
+            transition: all 0.3s;
+        }
+
+        .target-input-box input:focus {
+            outline: none;
+            border-color: #00ffff;
+            box-shadow: 0 0 15px rgba(0, 255, 255, 0.5);
+        }
+
+        .target-result-box {
+            flex: 1;
+            padding: 12px;
+            border-radius: 8px;
+            text-align: center;
+            border: 2px solid rgba(0, 255, 255, 0.3);
+            background: rgba(0, 20, 40, 0.6);
+            transition: all 0.3s;
+        }
+
+        .target-label {
+            font-size: 11px;
+            color: #00ffff;
+            margin-bottom: 5px;
+            font-weight: 600;
+        }
+
+        .target-value {
+            font-size: 22px;
+            font-weight: 800;
+            color: #00ffff;
+        }
+
+        /* Target Colors */
+        .target-done {
+            background: rgba(0, 150, 0, 0.3) !important;
+            border-color: #00ff00 !important;
+            box-shadow: 0 0 20px rgba(0, 255, 0, 0.4) !important;
+        }
+
+        .target-done .target-value {
+            color: #00ff00 !important;
+        }
+
+        .target-excess {
+            background: rgba(150, 0, 0, 0.3) !important;
+            border-color: #ff0000 !important;
+            box-shadow: 0 0 20px rgba(255, 0, 0, 0.4) !important;
+        }
+
+        .target-excess .target-value {
+            color: #ff0000 !important;
+        }
+
+        .target-acceptable {
+            background: rgba(0, 150, 0, 0.3) !important;
+            border-color: #00ff00 !important;
+            box-shadow: 0 0 20px rgba(0, 255, 0, 0.4) !important;
+        }
+
+        .target-acceptable .target-value {
+            color: #00ff00 !important;
+        }
+
+        .target-low {
+            background: rgba(0, 0, 150, 0.3) !important;
+            border-color: #0088ff !important;
+            box-shadow: 0 0 20px rgba(0, 136, 255, 0.4) !important;
+        }
+
+        .target-low .target-value {
+            color: #0088ff !important;
+        }
+
         @media (max-width: 480px) {
             body {
                 padding: 10px;
@@ -1069,14 +1217,14 @@
             </div>
             
             <!-- Weight Selector in Middle -->
-            <div class="weight-selector" onclick="cycleWeight()">
+            <div class="weight-selector">
                 <span class="weight-label">⚖️ WEIGHT</span>
-                <div class="weight-value">
-                    <span id="currentWeight">1kg</span>
-                    <div class="weight-arrows">
-                        <span>▲</span>
-                        <span>▼</span>
+                <div class="weight-controls">
+                    <span class="weight-arrow" onclick="previousWeight()">◀</span>
+                    <div class="weight-value">
+                        <span id="currentWeight">1kg</span>
                     </div>
+                    <span class="weight-arrow" onclick="nextWeight()">▶</span>
                 </div>
             </div>
             
@@ -1086,9 +1234,24 @@
             </div>
         </div>
 
+        <!-- Target Calculator -->
+        <div class="target-section">
+            <h3 style="color: #00ffff; text-align: center; margin-bottom: 15px; font-size: 18px;">🎯 Target Calculator</h3>
+            <div class="target-row">
+                <div class="target-input-box">
+                    <label>Target Shipper</label>
+                    <input type="number" id="targetShipper" placeholder="Enter target" min="0" step="1" oninput="calculateTarget()">
+                </div>
+                <div class="target-result-box" id="targetResult">
+                    <div class="target-label">Difference</div>
+                    <div class="target-value">--</div>
+                </div>
+            </div>
+        </div>
+
         <!-- Input Fields -->
         <div class="input-group">
-            <label for="pouchCount">📦 Pouch Count</label>
+            <label for="pouchCount">� Pouch Count</label>
             <input type="number" id="pouchCount" placeholder="Enter pouches" min="0" step="1" oninput="calculateFromPouch()">
         </div>
 
@@ -1101,7 +1264,7 @@
         </div>
 
         <div class="input-group">
-            <label for="palletCount">🚛 Pallet Count</label>
+            <label for="palletCount">� Pallet Count</label>
             <div class="input-row">
                 <input type="number" class="input-half" id="palletCount" placeholder="Pallets" min="0" step="0.01" oninput="calculateFromPallet()">
                 <div class="extra-box" id="extraShipper">+ 0 Shipper</div>
@@ -1302,9 +1465,20 @@ w2QjzsKE==" type="audio/wav">
             }
         }
 
-        // Cycle through weights
-        function cycleWeight() {
+        // Cycle through weights - NEXT
+        function nextWeight() {
             currentWeightIndex = (currentWeightIndex + 1) % weights.length;
+            updateWeightDisplay();
+        }
+
+        // Cycle through weights - PREVIOUS
+        function previousWeight() {
+            currentWeightIndex = (currentWeightIndex - 1 + weights.length) % weights.length;
+            updateWeightDisplay();
+        }
+
+        // Update weight display and recalculate
+        function updateWeightDisplay() {
             const currentWeight = weights[currentWeightIndex];
             document.getElementById('currentWeight').textContent = currentWeight;
             document.getElementById('formulaWeight').textContent = currentWeight;
@@ -1335,13 +1509,25 @@ w2QjzsKE==" type="audio/wav">
             return formulas[weights[currentWeightIndex]];
         }
 
-        // Update 10% range boxes
+        // Update 10% range boxes based on TARGET
         function updateShipperRange(shipperCount) {
-            const lowest = shipperCount * 0.9;  // -10%
-            const highest = shipperCount * 1.1; // +10%
+            const targetValue = parseFloat(document.getElementById('targetShipper').value) || 0;
             
-            document.getElementById('shipperLowest').textContent = lowest.toFixed(2);
-            document.getElementById('shipperHighest').textContent = highest.toFixed(2);
+            if (targetValue > 0) {
+                // Show target's 10% range
+                const lowest = targetValue * 0.9;  // Target - 10%
+                const highest = targetValue * 1.1; // Target + 10%
+                
+                document.getElementById('shipperLowest').textContent = lowest.toFixed(2);
+                document.getElementById('shipperHighest').textContent = highest.toFixed(2);
+            } else {
+                // If no target, show shipper's 10% range (old behavior)
+                const lowest = shipperCount * 0.9;
+                const highest = shipperCount * 1.1;
+                
+                document.getElementById('shipperLowest').textContent = lowest.toFixed(2);
+                document.getElementById('shipperHighest').textContent = highest.toFixed(2);
+            }
         }
 
         function calculateFromPouch() {
@@ -1434,6 +1620,56 @@ w2QjzsKE==" type="audio/wav">
             document.getElementById('pouchResult').textContent = Math.round(pouch).toLocaleString();
             document.getElementById('shipperResult').textContent = shipper.toFixed(2);
             document.getElementById('palletResult').textContent = pallet.toFixed(2);
+            
+            // Auto-calculate target if target is set
+            calculateTarget();
+        }
+
+        // Target Calculator Function
+        function calculateTarget() {
+            const targetInput = document.getElementById('targetShipper');
+            const targetValue = parseFloat(targetInput.value) || 0;
+            const currentShipper = parseFloat(document.getElementById('shipperCount').value) || 0;
+            const resultBox = document.getElementById('targetResult');
+            const valueElement = resultBox.querySelector('.target-value');
+            
+            // Update 10% boxes based on target
+            if (targetValue > 0) {
+                const lowest = targetValue * 0.9;
+                const highest = targetValue * 1.1;
+                document.getElementById('shipperLowest').textContent = lowest.toFixed(2);
+                document.getElementById('shipperHighest').textContent = highest.toFixed(2);
+            }
+            
+            if (targetValue === 0) {
+                valueElement.textContent = '--';
+                resultBox.className = 'target-result-box';
+                return;
+            }
+            
+            const difference = currentShipper - targetValue;
+            const percentDiff = (Math.abs(difference) / targetValue) * 100;
+            
+            // Remove all classes
+            resultBox.className = 'target-result-box';
+            
+            if (difference === 0) {
+                // Exact match
+                valueElement.textContent = '✅ Done';
+                resultBox.classList.add('target-done');
+            } else if (difference > 0) {
+                // Excess production (RED)
+                valueElement.textContent = `+${Math.floor(difference)}`;
+                resultBox.classList.add('target-excess');
+            } else if (percentDiff <= 10) {
+                // Within 10% less (GREEN - acceptable)
+                valueElement.textContent = `${Math.floor(difference)}`;
+                resultBox.classList.add('target-acceptable');
+            } else {
+                // More than 10% less (BLUE - too low)
+                valueElement.textContent = `${Math.floor(difference)}`;
+                resultBox.classList.add('target-low');
+            }
         }
 
         // Add input event listeners for all fields
