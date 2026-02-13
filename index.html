@@ -1359,7 +1359,7 @@
         <div class="input-group">
             <label for="shipperCount">📦 Shipper Count</label>
             <div class="input-row">
-                <input type="number" class="input-half" id="shipperCount" placeholder="Shippers" min="0" step="0.01" oninput="calculateFromShipper()">
+                <input type="number" class="input-half" id="shipperCount" placeholder="Shippers" min="0" step="1" oninput="calculateFromShipper()">
                 <div class="extra-box" id="extraPouch">+ 0 Pouch</div>
             </div>
         </div>
@@ -1367,7 +1367,7 @@
         <div class="input-group">
             <label for="palletCount">� Pallet Count</label>
             <div class="input-row">
-                <input type="number" class="input-half" id="palletCount" placeholder="Pallets" min="0" step="0.01" oninput="calculateFromPallet()">
+                <input type="number" class="input-half" id="palletCount" placeholder="Pallets" min="0" step="1" oninput="calculateFromPallet()">
                 <div class="extra-box" id="extraShipper">+ 0 Shipper</div>
             </div>
         </div>
@@ -1417,6 +1417,7 @@ w2QjzsKE==" type="audio/wav">
         let currentWeightIndex = 1; // Start with 300g (index 1) instead of 70g (index 0)
         let soundEnabled = true; // Sound enabled by default
         let alertTimeout = null;
+        let calculationTimeout = null;
         const weights = ['70g', '300g', '500g', '850g', '900g', '1kg', '2kg', '3kg', '3.2kg', '4kg', '5kg', '6kg'];
         
         // Formulas for each weight
@@ -1485,6 +1486,9 @@ w2QjzsKE==" type="audio/wav">
                 calculateFromShipper();
             } else if (palletInput.value) {
                 calculateFromPallet();
+            } else {
+                // Even if no input values, recalculate target if target is set
+                calculateTarget();
             }
         }
 
@@ -1662,6 +1666,9 @@ w2QjzsKE==" type="audio/wav">
                 calculateFromShipper();
             } else if (palletInput.value) {
                 calculateFromPallet();
+            } else {
+                // Even if no input values, recalculate target if target is set
+                calculateTarget();
             }
         }
 
@@ -1676,108 +1683,172 @@ w2QjzsKE==" type="audio/wav">
             
             if (targetValue > 0) {
                 // Show target's 10% range
-                const lowest = targetValue * 0.9;  // Target - 10%
-                const highest = targetValue * 1.1; // Target + 10%
+                const lowest = Math.floor(targetValue * 0.9);  // Target - 10%
+                const highest = Math.floor(targetValue * 1.1); // Target + 10%
                 
-                document.getElementById('shipperLowest').textContent = lowest.toFixed(2);
-                document.getElementById('shipperHighest').textContent = highest.toFixed(2);
+                document.getElementById('shipperLowest').textContent = lowest;
+                document.getElementById('shipperHighest').textContent = highest;
+            } else if (shipperCount > 0) {
+                // If no target but shipper has value, show shipper's 10% range
+                const lowest = Math.floor(shipperCount * 0.9);
+                const highest = Math.floor(shipperCount * 1.1);
+                
+                document.getElementById('shipperLowest').textContent = lowest;
+                document.getElementById('shipperHighest').textContent = highest;
             } else {
-                // If no target, show shipper's 10% range (old behavior)
-                const lowest = shipperCount * 0.9;
-                const highest = shipperCount * 1.1;
-                
-                document.getElementById('shipperLowest').textContent = lowest.toFixed(2);
-                document.getElementById('shipperHighest').textContent = highest.toFixed(2);
+                // If both are 0 or empty, show 0
+                document.getElementById('shipperLowest').textContent = '0';
+                document.getElementById('shipperHighest').textContent = '0';
             }
         }
 
         function calculateFromPouch() {
-            if (isCalculating) return;
+            if (isCalculating) {
+                // Safety: reset flag if stuck
+                setTimeout(() => { isCalculating = false; }, 100);
+                return;
+            }
             isCalculating = true;
-            playSound();
-
-            const formula = getCurrentFormula();
-            const unit = formula.unit || 'Pouch';
-            const pouchCount = parseFloat(document.getElementById('pouchCount').value) || 0;
             
-            const shipperCount = pouchCount / formula.pouchToShipper;
-            const palletCount = pouchCount / formula.pouchToPallet;
-            
-            // Calculate extra pouch (remainder)
-            const fullShippers = Math.floor(shipperCount);
-            const extraPouch = pouchCount - (fullShippers * formula.pouchToShipper);
-            
-            // Calculate extra shipper (remainder)
-            const fullPallets = Math.floor(palletCount);
-            const extraShipper = Math.floor(shipperCount) - (fullPallets * formula.shipperToPallet);
+            try {
+                playSound();
 
-            document.getElementById('shipperCount').value = fullShippers;
-            document.getElementById('palletCount').value = fullPallets;
-            
-            // Update extra boxes with correct unit
-            document.getElementById('extraPouch').textContent = `+ ${extraPouch} ${unit}`;
-            document.getElementById('extraShipper').textContent = `+ ${extraShipper} Shipper`;
+                const formula = getCurrentFormula();
+                const unit = formula.unit || 'Pouch';
+                const pouchInput = document.getElementById('pouchCount').value;
+                
+                // If input is empty, clear all fields
+                if (pouchInput === '' || pouchInput === null) {
+                    document.getElementById('shipperCount').value = '';
+                    document.getElementById('palletCount').value = '';
+                    document.getElementById('extraPouch').textContent = `+ 0 ${unit}`;
+                    document.getElementById('extraShipper').textContent = `+ 0 Shipper`;
+                    updateResults(0, 0, 0);
+                    updateShipperRange(0);
+                    return;
+                }
+                
+                const pouchCount = parseFloat(pouchInput) || 0;
+                
+                const shipperCount = pouchCount / formula.pouchToShipper;
+                const palletCount = pouchCount / formula.pouchToPallet;
+                
+                // Calculate extra pouch (remainder)
+                const fullShippers = Math.floor(shipperCount);
+                const extraPouch = pouchCount - (fullShippers * formula.pouchToShipper);
+                
+                // Calculate extra shipper (remainder)
+                const fullPallets = Math.floor(palletCount);
+                const extraShipper = Math.floor(shipperCount) - (fullPallets * formula.shipperToPallet);
 
-            updateResults(pouchCount, shipperCount, palletCount);
-            updateShipperRange(shipperCount);
+                document.getElementById('shipperCount').value = fullShippers;
+                document.getElementById('palletCount').value = fullPallets;
+                
+                // Update extra boxes with correct unit
+                document.getElementById('extraPouch').textContent = `+ ${extraPouch} ${unit}`;
+                document.getElementById('extraShipper').textContent = `+ ${extraShipper} Shipper`;
 
-            isCalculating = false;
+                updateResults(pouchCount, shipperCount, palletCount);
+                updateShipperRange(shipperCount);
+            } finally {
+                isCalculating = false;
+            }
         }
 
         function calculateFromShipper() {
-            if (isCalculating) return;
+            if (isCalculating) {
+                // Safety: reset flag if stuck
+                setTimeout(() => { isCalculating = false; }, 100);
+                return;
+            }
             isCalculating = true;
-            playSound();
-
-            const formula = getCurrentFormula();
-            const unit = formula.unit || 'Pouch';
-            const shipperCount = parseFloat(document.getElementById('shipperCount').value) || 0;
             
-            const pouchCount = shipperCount * formula.pouchToShipper;
-            const palletCount = shipperCount / formula.shipperToPallet;
-            
-            // Calculate extra shipper (remainder)
-            const fullPallets = Math.floor(palletCount);
-            const extraShipper = shipperCount - (fullPallets * formula.shipperToPallet);
-            
-            // Extra pouch is 0 when entering shipper directly
-            document.getElementById('extraPouch').textContent = `+ 0 ${unit}`;
+            try {
+                playSound();
 
-            document.getElementById('pouchCount').value = Math.round(pouchCount);
-            document.getElementById('palletCount').value = fullPallets;
-            
-            // Update extra shipper box
-            document.getElementById('extraShipper').textContent = `+ ${extraShipper.toFixed(2)} Shipper`;
+                const formula = getCurrentFormula();
+                const unit = formula.unit || 'Pouch';
+                const shipperInput = document.getElementById('shipperCount').value;
+                
+                // If input is empty, clear all fields
+                if (shipperInput === '' || shipperInput === null) {
+                    document.getElementById('pouchCount').value = '';
+                    document.getElementById('palletCount').value = '';
+                    document.getElementById('extraPouch').textContent = `+ 0 ${unit}`;
+                    document.getElementById('extraShipper').textContent = `+ 0 Shipper`;
+                    updateResults(0, 0, 0);
+                    updateShipperRange(0);
+                    return;
+                }
+                
+                const shipperCount = parseFloat(shipperInput) || 0;
+                
+                const pouchCount = shipperCount * formula.pouchToShipper;
+                const palletCount = shipperCount / formula.shipperToPallet;
+                
+                // Calculate extra shipper (remainder)
+                const fullPallets = Math.floor(palletCount);
+                const extraShipper = shipperCount - (fullPallets * formula.shipperToPallet);
+                
+                // Extra pouch is 0 when entering shipper directly
+                document.getElementById('extraPouch').textContent = `+ 0 ${unit}`;
 
-            updateResults(pouchCount, shipperCount, palletCount);
-            updateShipperRange(shipperCount);
+                document.getElementById('pouchCount').value = Math.round(pouchCount);
+                document.getElementById('palletCount').value = fullPallets;
+                
+                // Update extra shipper box
+                document.getElementById('extraShipper').textContent = `+ ${extraShipper.toFixed(2)} Shipper`;
 
-            isCalculating = false;
+                updateResults(pouchCount, shipperCount, palletCount);
+                updateShipperRange(shipperCount);
+            } finally {
+                isCalculating = false;
+            }
         }
 
         function calculateFromPallet() {
-            if (isCalculating) return;
+            if (isCalculating) {
+                // Safety: reset flag if stuck
+                setTimeout(() => { isCalculating = false; }, 100);
+                return;
+            }
             isCalculating = true;
-            playSound();
-
-            const formula = getCurrentFormula();
-            const unit = formula.unit || 'Pouch';
-            const palletCount = parseFloat(document.getElementById('palletCount').value) || 0;
             
-            const pouchCount = palletCount * formula.pouchToPallet;
-            const shipperCount = palletCount * formula.shipperToPallet;
+            try {
+                playSound();
 
-            document.getElementById('pouchCount').value = Math.round(pouchCount);
-            document.getElementById('shipperCount').value = Math.floor(shipperCount);
-            
-            // Extra boxes are 0 when entering pallet directly
-            document.getElementById('extraPouch').textContent = `+ 0 ${unit}`;
-            document.getElementById('extraShipper').textContent = `+ 0 Shipper`;
+                const formula = getCurrentFormula();
+                const unit = formula.unit || 'Pouch';
+                const palletInput = document.getElementById('palletCount').value;
+                
+                // If input is empty, clear all fields
+                if (palletInput === '' || palletInput === null) {
+                    document.getElementById('pouchCount').value = '';
+                    document.getElementById('shipperCount').value = '';
+                    document.getElementById('extraPouch').textContent = `+ 0 ${unit}`;
+                    document.getElementById('extraShipper').textContent = `+ 0 Shipper`;
+                    updateResults(0, 0, 0);
+                    updateShipperRange(0);
+                    return;
+                }
+                
+                const palletCount = parseFloat(palletInput) || 0;
+                
+                const pouchCount = palletCount * formula.pouchToPallet;
+                const shipperCount = palletCount * formula.shipperToPallet;
 
-            updateResults(pouchCount, shipperCount, palletCount);
-            updateShipperRange(shipperCount);
+                document.getElementById('pouchCount').value = Math.round(pouchCount);
+                document.getElementById('shipperCount').value = Math.floor(shipperCount);
+                
+                // Extra boxes are 0 when entering pallet directly
+                document.getElementById('extraPouch').textContent = `+ 0 ${unit}`;
+                document.getElementById('extraShipper').textContent = `+ 0 Shipper`;
 
-            isCalculating = false;
+                updateResults(pouchCount, shipperCount, palletCount);
+                updateShipperRange(shipperCount);
+            } finally {
+                isCalculating = false;
+            }
         }
 
         function updateResults(pouch, shipper, pallet) {
@@ -1801,10 +1872,10 @@ w2QjzsKE==" type="audio/wav">
             
             // Update 10% boxes based on target
             if (targetValue > 0) {
-                const lowest = targetValue * 0.9;
-                const highest = targetValue * 1.1;
-                document.getElementById('shipperLowest').textContent = lowest.toFixed(2);
-                document.getElementById('shipperHighest').textContent = highest.toFixed(2);
+                const lowest = Math.floor(targetValue * 0.9);
+                const highest = Math.floor(targetValue * 1.1);
+                document.getElementById('shipperLowest').textContent = lowest;
+                document.getElementById('shipperHighest').textContent = highest;
             }
             
             if (targetValue === 0) {
