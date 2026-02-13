@@ -1414,7 +1414,7 @@ w2QjzsKE==" type="audio/wav">
 
     <script>
         let isCalculating = false;
-        let currentWeightIndex = 0;
+        let currentWeightIndex = 1; // Start with 300g (index 1) instead of 70g (index 0)
         let soundEnabled = true; // Sound enabled by default
         let alertTimeout = null;
         const weights = ['70g', '300g', '500g', '850g', '900g', '1kg', '2kg', '3kg', '3.2kg', '4kg', '5kg', '6kg'];
@@ -1697,6 +1697,7 @@ w2QjzsKE==" type="audio/wav">
             playSound();
 
             const formula = getCurrentFormula();
+            const unit = formula.unit || 'Pouch';
             const pouchCount = parseFloat(document.getElementById('pouchCount').value) || 0;
             
             const shipperCount = pouchCount / formula.pouchToShipper;
@@ -1713,8 +1714,8 @@ w2QjzsKE==" type="audio/wav">
             document.getElementById('shipperCount').value = fullShippers;
             document.getElementById('palletCount').value = fullPallets;
             
-            // Update extra boxes
-            document.getElementById('extraPouch').textContent = `+ ${extraPouch} Pouch`;
+            // Update extra boxes with correct unit
+            document.getElementById('extraPouch').textContent = `+ ${extraPouch} ${unit}`;
             document.getElementById('extraShipper').textContent = `+ ${extraShipper} Shipper`;
 
             updateResults(pouchCount, shipperCount, palletCount);
@@ -1729,6 +1730,7 @@ w2QjzsKE==" type="audio/wav">
             playSound();
 
             const formula = getCurrentFormula();
+            const unit = formula.unit || 'Pouch';
             const shipperCount = parseFloat(document.getElementById('shipperCount').value) || 0;
             
             const pouchCount = shipperCount * formula.pouchToShipper;
@@ -1739,7 +1741,7 @@ w2QjzsKE==" type="audio/wav">
             const extraShipper = shipperCount - (fullPallets * formula.shipperToPallet);
             
             // Extra pouch is 0 when entering shipper directly
-            document.getElementById('extraPouch').textContent = `+ 0 Pouch`;
+            document.getElementById('extraPouch').textContent = `+ 0 ${unit}`;
 
             document.getElementById('pouchCount').value = Math.round(pouchCount);
             document.getElementById('palletCount').value = fullPallets;
@@ -1759,6 +1761,7 @@ w2QjzsKE==" type="audio/wav">
             playSound();
 
             const formula = getCurrentFormula();
+            const unit = formula.unit || 'Pouch';
             const palletCount = parseFloat(document.getElementById('palletCount').value) || 0;
             
             const pouchCount = palletCount * formula.pouchToPallet;
@@ -1768,7 +1771,7 @@ w2QjzsKE==" type="audio/wav">
             document.getElementById('shipperCount').value = Math.floor(shipperCount);
             
             // Extra boxes are 0 when entering pallet directly
-            document.getElementById('extraPouch').textContent = `+ 0 Pouch`;
+            document.getElementById('extraPouch').textContent = `+ 0 ${unit}`;
             document.getElementById('extraShipper').textContent = `+ 0 Shipper`;
 
             updateResults(pouchCount, shipperCount, palletCount);
