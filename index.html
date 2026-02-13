@@ -253,13 +253,20 @@
         .dark-mode-toggle, .settings-btn {
             cursor: pointer;
             font-size: 22px;
-            transition: transform 0.3s, filter 0.3s;
+            transition: transform 0.2s ease;
             filter: drop-shadow(0 0 5px rgba(255, 255, 255, 0.5));
+            -webkit-tap-highlight-color: transparent;
+            user-select: none;
+            touch-action: manipulation;
         }
 
         .dark-mode-toggle:hover, .settings-btn:hover {
-            transform: scale(1.3) rotate(20deg);
-            filter: drop-shadow(0 0 15px rgba(0, 255, 255, 1));
+            transform: scale(1.2);
+            filter: drop-shadow(0 0 10px rgba(0, 255, 255, 0.8));
+        }
+
+        .dark-mode-toggle:active, .settings-btn:active {
+            transform: scale(1.1);
         }
 
         /* Settings Panel */
@@ -351,11 +358,18 @@
             background: #f5f5f5;
             border-radius: 8px;
             cursor: pointer;
-            transition: all 0.3s;
+            transition: background 0.2s ease;
+            -webkit-tap-highlight-color: transparent;
+            user-select: none;
+            touch-action: manipulation;
         }
 
         .toggle-switch:hover {
             background: #e0e0e0;
+        }
+
+        .toggle-switch:active {
+            background: #d0d0d0;
         }
 
         body.dark-mode .toggle-switch {
@@ -415,33 +429,6 @@
             background: rgba(0, 30, 60, 0.8);
             color: #00ffff;
             border-color: rgba(0, 255, 255, 0.5);
-        }
-
-        .color-picker-wrapper {
-            display: flex;
-            gap: 10px;
-            align-items: center;
-        }
-
-        .color-picker {
-            width: 60px;
-            height: 40px;
-            border: 2px solid #e0e0e0;
-            border-radius: 8px;
-            cursor: pointer;
-        }
-
-        body.dark-mode .color-picker {
-            border-color: rgba(0, 255, 255, 0.5);
-        }
-
-        .color-preview {
-            flex: 1;
-            padding: 10px;
-            border-radius: 8px;
-            text-align: center;
-            font-weight: 600;
-            font-size: 13px;
         }
 
         .settings-overlay {
@@ -697,17 +684,19 @@
             padding: 4px 8px;
             background: rgba(156, 39, 176, 0.2);
             border-radius: 5px;
-            transition: all 0.3s;
+            transition: background 0.2s ease, transform 0.1s ease;
             user-select: none;
+            -webkit-tap-highlight-color: transparent;
+            touch-action: manipulation;
         }
 
         .weight-arrow:hover {
             background: rgba(156, 39, 176, 0.4);
-            transform: scale(1.2);
+            transform: scale(1.15);
         }
 
         .weight-arrow:active {
-            transform: scale(0.9);
+            transform: scale(0.95);
         }
 
         body.dark-mode .weight-arrow {
@@ -857,7 +846,9 @@
             border-radius: 8px;
             font-size: 15px;
             font-weight: 600;
-            transition: all 0.3s;
+            transition: border-color 0.2s ease, box-shadow 0.2s ease;
+            -webkit-tap-highlight-color: transparent;
+            touch-action: manipulation;
         }
 
         input[type="number"]:focus {
@@ -1267,14 +1258,16 @@
             </div>
         </div>
 
-        <!-- Custom Color -->
+        <!-- How to Use Guide -->
         <div class="settings-section">
-            <label class="settings-label">🎨 Custom Accent Color</label>
-            <div class="color-picker-wrapper">
-                <input type="color" class="color-picker" id="accentColor" value="#00ffff" onchange="changeAccentColor()">
-                <div class="color-preview" id="colorPreview" style="background: #00ffff; color: white;">
-                    #00ffff
-                </div>
+            <label class="settings-label">📖 How to Use</label>
+            <div style="background: rgba(0, 30, 60, 0.3); padding: 15px; border-radius: 8px; font-size: 13px; line-height: 1.8; color: #00ffff;">
+                <p style="margin-bottom: 10px;"><strong>1. Weight Select:</strong> Arrow buttons ya settings se weight choose karo</p>
+                <p style="margin-bottom: 10px;"><strong>2. Input:</strong> Pouch, Shipper ya Pallet mein se koi ek value dalo</p>
+                <p style="margin-bottom: 10px;"><strong>3. Auto Calculate:</strong> Baaki sab automatically calculate ho jayega</p>
+                <p style="margin-bottom: 10px;"><strong>4. Target:</strong> Target Shipper dalo to difference aur time dikhega</p>
+                <p style="margin-bottom: 10px;"><strong>5. 10% Range:</strong> Target ka 10% range Lowest/Highest mein dikhta hai</p>
+                <p style="margin-bottom: 0;"><strong>6. Refresh:</strong> 🔄 button se sab clear karo</p>
             </div>
         </div>
     </div>
@@ -1301,13 +1294,13 @@
             <h1>🏭 Production Calculator</h1>
             <div class="header-right">
                 <div class="dark-mode-toggle" onclick="refreshAll()" title="Refresh All">
-                    <span id="refreshIcon">🔄</span>
+                    <span id="refreshIcon">↻</span>
                 </div>
                 <div class="dark-mode-toggle" onclick="toggleDarkMode()" title="Toggle Mode">
                     <span id="darkModeIcon">☀️</span>
                 </div>
                 <div class="settings-btn" onclick="openSettings()" title="Settings">
-                    ⋮
+                    ⚙️
                 </div>
             </div>
         </header>
@@ -1529,17 +1522,6 @@ w2QjzsKE==" type="audio/wav">
             } else {
                 localStorage.setItem('soundEnabled', 'disabled');
             }
-        }
-
-        function changeAccentColor() {
-            const color = document.getElementById('accentColor').value;
-            document.getElementById('colorPreview').style.background = color;
-            document.getElementById('colorPreview').textContent = color;
-            
-            // Apply color to various elements
-            document.documentElement.style.setProperty('--accent-color', color);
-            localStorage.setItem('accentColor', color);
-            playWeightSound();
         }
 
         // Play typing sound
@@ -1971,16 +1953,40 @@ w2QjzsKE==" type="audio/wav">
             }
         }
 
-        // Refresh All - Recalculate target time
+        // Refresh All - Clear all boxes
         function refreshAll() {
-            // Just recalculate target - don't clear anything
-            calculateTarget();
+            // Clear all input fields
+            document.getElementById('pouchCount').value = '';
+            document.getElementById('shipperCount').value = '';
+            document.getElementById('palletCount').value = '';
+            document.getElementById('targetShipper').value = '';
+            
+            // Reset extra boxes
+            const formula = getCurrentFormula();
+            const unit = formula.unit || 'Pouch';
+            document.getElementById('extraPouch').textContent = `+ 0 ${unit}`;
+            document.getElementById('extraShipper').textContent = `+ 0 Shipper`;
+            
+            // Reset results
+            document.getElementById('pouchResult').textContent = '0';
+            document.getElementById('shipperResult').textContent = '0';
+            document.getElementById('palletResult').textContent = '0';
+            
+            // Reset 10% boxes
+            document.getElementById('shipperLowest').textContent = '0';
+            document.getElementById('shipperHighest').textContent = '0';
+            
+            // Reset target calculator
+            const targetResult = document.getElementById('targetResult');
+            targetResult.className = 'target-result-box';
+            targetResult.querySelector('.target-value').textContent = '--';
+            document.getElementById('targetTime').textContent = '';
             
             // Play sound
             playWeightSound();
             
             // Show alert
-            showCornerAlert('🔄 Time Refreshed', 'weight-alert', 2000);
+            showCornerAlert('🔄 All Cleared', 'weight-alert', 2000);
         }
 
         // Load dark mode preference
@@ -2027,15 +2033,6 @@ w2QjzsKE==" type="audio/wav">
             } else {
                 soundEnabled = true;
                 soundSwitch.classList.add('active');
-            }
-            
-            // Load accent color
-            const accentColor = localStorage.getItem('accentColor');
-            if (accentColor) {
-                document.getElementById('accentColor').value = accentColor;
-                document.getElementById('colorPreview').style.background = accentColor;
-                document.getElementById('colorPreview').textContent = accentColor;
-                document.documentElement.style.setProperty('--accent-color', accentColor);
             }
             
             // Initialize formula display with current weight
