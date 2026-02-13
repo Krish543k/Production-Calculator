@@ -836,6 +836,20 @@
             font-size: 13px;
         }
 
+        /* Make Shipper Count label darker and more prominent */
+        label[for="shipperCount"] {
+            color: #000000;
+            font-weight: 800;
+            font-size: 14px;
+            text-shadow: 0 0 1px rgba(0, 0, 0, 0.3);
+        }
+
+        body.dark-mode label[for="shipperCount"] {
+            color: #00ffff;
+            font-weight: 800;
+            text-shadow: 0 0 10px rgba(0, 255, 255, 0.8);
+        }
+
         input[type="number"] {
             width: 100%;
             padding: 12px;
@@ -1060,6 +1074,69 @@
             color: #0088ff !important;
         }
 
+        /* Corner Alert Styles */
+        .corner-alert {
+            position: fixed;
+            top: 10px;
+            right: 10px;
+            background: rgba(0, 50, 100, 0.95);
+            border: 2px solid rgba(0, 255, 255, 0.6);
+            border-radius: 8px;
+            padding: 8px 12px;
+            font-size: 11px;
+            font-weight: 600;
+            color: #00ffff;
+            box-shadow: 0 0 15px rgba(0, 255, 255, 0.4);
+            z-index: 1000;
+            opacity: 0;
+            transform: translateX(150%);
+            transition: all 0.3s ease;
+            pointer-events: none;
+            max-width: 180px;
+            text-align: center;
+        }
+
+        .corner-alert.show {
+            opacity: 1;
+            transform: translateX(0);
+        }
+
+        .corner-alert.weight-alert {
+            background: rgba(156, 39, 176, 0.95);
+            border-color: rgba(206, 147, 216, 0.8);
+            color: #ce93d8;
+            box-shadow: 0 0 15px rgba(156, 39, 176, 0.5);
+        }
+
+        .corner-alert.target-alert {
+            background: rgba(0, 150, 0, 0.95);
+            border-color: rgba(0, 255, 0, 0.8);
+            color: #00ff00;
+            box-shadow: 0 0 15px rgba(0, 255, 0, 0.5);
+        }
+
+        .corner-alert.target-alert.low {
+            background: rgba(0, 100, 255, 0.95);
+            border-color: rgba(0, 150, 255, 0.8);
+            color: #66b3ff;
+        }
+
+        .corner-alert.target-alert.excess {
+            background: rgba(150, 0, 0, 0.95);
+            border-color: rgba(255, 0, 0, 0.8);
+            color: #ff6666;
+        }
+
+        @media (max-width: 480px) {
+            .corner-alert {
+                top: 5px;
+                right: 5px;
+                font-size: 10px;
+                padding: 6px 10px;
+                max-width: 150px;
+            }
+        }
+
         @media (max-width: 480px) {
             body {
                 padding: 10px;
@@ -1205,6 +1282,9 @@
     <!-- JARVIS scan line effect -->
     <div class="scan-line" id="scanLine"></div>
     
+    <!-- Corner Alert -->
+    <div class="corner-alert" id="cornerAlert"></div>
+    
     <!-- Hexagon pattern overlay -->
     <div class="hex-pattern"></div>
     
@@ -1336,6 +1416,7 @@ w2QjzsKE==" type="audio/wav">
         let isCalculating = false;
         let currentWeightIndex = 0;
         let soundEnabled = true; // Sound enabled by default
+        let alertTimeout = null;
         const weights = ['70g', '300g', '500g', '850g', '900g', '1kg', '2kg', '3kg', '3.2kg', '4kg', '5kg', '6kg'];
         
         // Formulas for each weight
@@ -1375,6 +1456,7 @@ w2QjzsKE==" type="audio/wav">
             document.getElementById('currentWeight').textContent = currentWeight;
             document.getElementById('formulaWeight').textContent = currentWeight;
             playWeightSound();
+            showCornerAlert(`⚖️ ${currentWeight} Selected`, 'weight-alert', 2000);
             
             // Update label based on unit (Met or Pouch)
             const unit = formula.unit || 'Pouch';
@@ -1499,16 +1581,49 @@ w2QjzsKE==" type="audio/wav">
             }
         }
 
+        // Show corner alert
+        function showCornerAlert(message, type = 'default', duration = 3000) {
+            const alert = document.getElementById('cornerAlert');
+            
+            // Clear existing timeout
+            if (alertTimeout) {
+                clearTimeout(alertTimeout);
+            }
+            
+            // Remove all type classes
+            alert.className = 'corner-alert';
+            
+            // Add type class
+            if (type !== 'default') {
+                alert.classList.add(type);
+            }
+            
+            // Set message
+            alert.textContent = message;
+            
+            // Show alert
+            setTimeout(() => {
+                alert.classList.add('show');
+            }, 10);
+            
+            // Hide after duration
+            alertTimeout = setTimeout(() => {
+                alert.classList.remove('show');
+            }, duration);
+        }
+
         // Cycle through weights - NEXT
         function nextWeight() {
             currentWeightIndex = (currentWeightIndex + 1) % weights.length;
             updateWeightDisplay();
+            showCornerAlert(`⚖️ ${weights[currentWeightIndex]} Selected`, 'weight-alert', 2000);
         }
 
         // Cycle through weights - PREVIOUS
         function previousWeight() {
             currentWeightIndex = (currentWeightIndex - 1 + weights.length) % weights.length;
             updateWeightDisplay();
+            showCornerAlert(`⚖️ ${weights[currentWeightIndex]} Selected`, 'weight-alert', 2000);
         }
 
         // Update weight display and recalculate
@@ -1725,21 +1840,25 @@ w2QjzsKE==" type="audio/wav">
                 valueElement.textContent = '✅ Done';
                 timeElement.textContent = '';
                 resultBox.classList.add('target-done');
+                showCornerAlert('🎯 Target Achieved!', 'target-alert', 2500);
             } else if (difference > 0) {
                 // Excess production (RED)
                 valueElement.textContent = `+${Math.floor(difference)}`;
                 timeElement.textContent = timeText;
                 resultBox.classList.add('target-excess');
+                showCornerAlert(`📈 +${Math.floor(difference)} Over Target`, 'target-alert excess', 2500);
             } else if (percentDiff <= 10) {
                 // Within 10% less (GREEN - acceptable)
                 valueElement.textContent = `${Math.floor(difference)}`;
                 timeElement.textContent = timeText;
                 resultBox.classList.add('target-acceptable');
+                showCornerAlert(`📊 ${Math.floor(difference)} (10% Range)`, 'target-alert', 2500);
             } else {
                 // More than 10% less (BLUE - too low)
                 valueElement.textContent = `${Math.floor(difference)}`;
                 timeElement.textContent = timeText;
                 resultBox.classList.add('target-low');
+                showCornerAlert(`📉 ${Math.floor(difference)} Below Target`, 'target-alert low', 2500);
             }
         }
 
@@ -1853,6 +1972,11 @@ w2QjzsKE==" type="audio/wav">
             // Update speed display
             const speedText = formula.speed > 0 ? `${formula.speed} ${unit}/min` : 'Not Set';
             document.getElementById('formula4').textContent = `⚡ Speed: ${speedText}`;
+            
+            // Show initial weight selection alert
+            setTimeout(() => {
+                showCornerAlert('⚖️ Select Weight First', 'weight-alert', 3000);
+            }, 1800);
         };
     </script>
 </body>
