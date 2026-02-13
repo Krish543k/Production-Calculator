@@ -983,21 +983,40 @@
             border-radius: 8px;
             text-align: center;
             border: 2px solid rgba(0, 255, 255, 0.3);
-            background: rgba(0, 20, 40, 0.6);
+            background: #ffffff;
             transition: all 0.3s;
+        }
+
+        body.dark-mode .target-result-box {
+            background: #ffffff;
         }
 
         .target-label {
             font-size: 11px;
-            color: #00ffff;
+            color: #666;
             margin-bottom: 5px;
             font-weight: 600;
+        }
+
+        body.dark-mode .target-label {
+            color: #666;
         }
 
         .target-value {
             font-size: 22px;
             font-weight: 800;
-            color: #00ffff;
+            color: #333;
+        }
+
+        body.dark-mode .target-value {
+            color: #333;
+        }
+
+        .target-time {
+            font-size: 14px;
+            font-weight: 700;
+            margin-top: 5px;
+            color: #666;
         }
 
         /* Target Colors */
@@ -1032,7 +1051,7 @@
         }
 
         .target-low {
-            background: rgba(0, 0, 150, 0.3) !important;
+            background: #ffffff !important;
             border-color: #0088ff !important;
             box-shadow: 0 0 20px rgba(0, 136, 255, 0.4) !important;
         }
@@ -1123,17 +1142,18 @@
         <div class="settings-section">
             <label class="settings-label">📦 Select Weight</label>
             <select class="weight-dropdown" id="weightDropdown" onchange="changeWeightManually()">
-                <option value="0">300g</option>
-                <option value="1">500g</option>
-                <option value="2">850g</option>
-                <option value="3">900g</option>
-                <option value="4">1kg</option>
-                <option value="5">2kg</option>
-                <option value="6">3kg</option>
-                <option value="7">3.2kg</option>
-                <option value="8">4kg</option>
-                <option value="9">5kg</option>
-                <option value="10">6kg</option>
+                <option value="0">70g</option>
+                <option value="1">300g</option>
+                <option value="2">500g</option>
+                <option value="3">850g</option>
+                <option value="4">900g</option>
+                <option value="5">1kg</option>
+                <option value="6">2kg</option>
+                <option value="7">3kg</option>
+                <option value="8">3.2kg</option>
+                <option value="9">4kg</option>
+                <option value="10">5kg</option>
+                <option value="11">6kg</option>
             </select>
         </div>
 
@@ -1245,6 +1265,7 @@
                 <div class="target-result-box" id="targetResult">
                     <div class="target-label">Difference</div>
                     <div class="target-value">--</div>
+                    <div class="target-time" id="targetTime"></div>
                 </div>
             </div>
         </div>
@@ -1293,6 +1314,7 @@
             <p id="formula1">✓ 24 Pouch = 1 Shipper</p>
             <p id="formula2">✓ 42 Shipper = 1 Pallet</p>
             <p id="formula3">✓ 1008 Pouch = 1 Pallet</p>
+            <p id="formula4">⚡ Speed: 40 Pouch/min</p>
         </div>
     </div>
 
@@ -1314,21 +1336,22 @@ w2QjzsKE==" type="audio/wav">
         let isCalculating = false;
         let currentWeightIndex = 0;
         let soundEnabled = true; // Sound enabled by default
-        const weights = ['300g', '500g', '850g', '900g', '1kg', '2kg', '3kg', '3.2kg', '4kg', '5kg', '6kg'];
+        const weights = ['70g', '300g', '500g', '850g', '900g', '1kg', '2kg', '3kg', '3.2kg', '4kg', '5kg', '6kg'];
         
         // Formulas for each weight
         const formulas = {
-            '300g': { pouchToShipper: 24, shipperToPallet: 42, pouchToPallet: 1008 },
-            '500g': { pouchToShipper: 24, shipperToPallet: 36, pouchToPallet: 864 },
-            '850g': { pouchToShipper: 12, shipperToPallet: 50, pouchToPallet: 600 },
-            '900g': { pouchToShipper: 12, shipperToPallet: 50, pouchToPallet: 600 },
-            '1kg': { pouchToShipper: 12, shipperToPallet: 50, pouchToPallet: 600 },
-            '2kg': { pouchToShipper: 6, shipperToPallet: 40, pouchToPallet: 240 },
-            '3kg': { pouchToShipper: 4, shipperToPallet: 40, pouchToPallet: 160 },
-            '3.2kg': { pouchToShipper: 4, shipperToPallet: 40, pouchToPallet: 160 },
-            '4kg': { pouchToShipper: 4, shipperToPallet: 32, pouchToPallet: 128 },
-            '5kg': { pouchToShipper: 2, shipperToPallet: 60, pouchToPallet: 120 },
-            '6kg': { pouchToShipper: 2, shipperToPallet: 45, pouchToPallet: 90 }
+            '70g': { pouchToShipper: 2, shipperToPallet: 48, pouchToPallet: 96, speed: 0, unit: 'Met' },
+            '300g': { pouchToShipper: 24, shipperToPallet: 42, pouchToPallet: 1008, speed: 40, unit: 'Pouch' },
+            '500g': { pouchToShipper: 24, shipperToPallet: 36, pouchToPallet: 864, speed: 40, unit: 'Pouch' },
+            '850g': { pouchToShipper: 12, shipperToPallet: 50, pouchToPallet: 600, speed: 40, unit: 'Pouch' },
+            '900g': { pouchToShipper: 12, shipperToPallet: 50, pouchToPallet: 600, speed: 40, unit: 'Pouch' },
+            '1kg': { pouchToShipper: 12, shipperToPallet: 50, pouchToPallet: 600, speed: 40, unit: 'Pouch' },
+            '2kg': { pouchToShipper: 6, shipperToPallet: 40, pouchToPallet: 240, speed: 30, unit: 'Pouch' },
+            '3kg': { pouchToShipper: 4, shipperToPallet: 40, pouchToPallet: 160, speed: 25, unit: 'Pouch' },
+            '3.2kg': { pouchToShipper: 4, shipperToPallet: 40, pouchToPallet: 160, speed: 25, unit: 'Pouch' },
+            '4kg': { pouchToShipper: 4, shipperToPallet: 32, pouchToPallet: 128, speed: 21, unit: 'Pouch' },
+            '5kg': { pouchToShipper: 2, shipperToPallet: 60, pouchToPallet: 120, speed: 10, unit: 'Pouch' },
+            '6kg': { pouchToShipper: 2, shipperToPallet: 45, pouchToPallet: 90, speed: 0, unit: 'Pouch' }
         };
 
         // Settings functions
@@ -1347,16 +1370,27 @@ w2QjzsKE==" type="audio/wav">
             const dropdown = document.getElementById('weightDropdown');
             currentWeightIndex = parseInt(dropdown.value);
             const currentWeight = weights[currentWeightIndex];
+            const formula = getCurrentFormula();
             
             document.getElementById('currentWeight').textContent = currentWeight;
             document.getElementById('formulaWeight').textContent = currentWeight;
             playWeightSound();
             
+            // Update label based on unit (Met or Pouch)
+            const unit = formula.unit || 'Pouch';
+            const pouchLabel = document.querySelector('label[for="pouchCount"]');
+            if (pouchLabel) {
+                pouchLabel.textContent = `📦 ${unit} Count`;
+            }
+            
             // Update formula display
-            const formula = getCurrentFormula();
-            document.getElementById('formula1').textContent = `✓ ${formula.pouchToShipper} Pouch = 1 Shipper`;
+            document.getElementById('formula1').textContent = `✓ ${formula.pouchToShipper} ${unit} = 1 Shipper`;
             document.getElementById('formula2').textContent = `✓ ${formula.shipperToPallet} Shipper = 1 Pallet`;
-            document.getElementById('formula3').textContent = `✓ ${formula.pouchToPallet} Pouch = 1 Pallet`;
+            document.getElementById('formula3').textContent = `✓ ${formula.pouchToPallet} ${unit} = 1 Pallet`;
+            
+            // Update speed display
+            const speedText = formula.speed > 0 ? `${formula.speed} ${unit}/min` : 'Not Set';
+            document.getElementById('formula4').textContent = `⚡ Speed: ${speedText}`;
             
             // Recalculate
             const pouchInput = document.getElementById('pouchCount');
@@ -1480,15 +1514,27 @@ w2QjzsKE==" type="audio/wav">
         // Update weight display and recalculate
         function updateWeightDisplay() {
             const currentWeight = weights[currentWeightIndex];
+            const formula = getCurrentFormula();
+            const unit = formula.unit || 'Pouch';
+            
             document.getElementById('currentWeight').textContent = currentWeight;
             document.getElementById('formulaWeight').textContent = currentWeight;
             playWeightSound();
             
+            // Update label based on unit (Met or Pouch)
+            const pouchLabel = document.querySelector('label[for="pouchCount"]');
+            if (pouchLabel) {
+                pouchLabel.textContent = `📦 ${unit} Count`;
+            }
+            
             // Update formula display
-            const formula = getCurrentFormula();
-            document.getElementById('formula1').textContent = `✓ ${formula.pouchToShipper} Pouch = 1 Shipper`;
+            document.getElementById('formula1').textContent = `✓ ${formula.pouchToShipper} ${unit} = 1 Shipper`;
             document.getElementById('formula2').textContent = `✓ ${formula.shipperToPallet} Shipper = 1 Pallet`;
-            document.getElementById('formula3').textContent = `✓ ${formula.pouchToPallet} Pouch = 1 Pallet`;
+            document.getElementById('formula3').textContent = `✓ ${formula.pouchToPallet} ${unit} = 1 Pallet`;
+            
+            // Update speed display
+            const speedText = formula.speed > 0 ? `${formula.speed} ${unit}/min` : 'Not Set';
+            document.getElementById('formula4').textContent = `⚡ Speed: ${speedText}`;
             
             // Recalculate with new formula
             const pouchInput = document.getElementById('pouchCount');
@@ -1632,6 +1678,8 @@ w2QjzsKE==" type="audio/wav">
             const currentShipper = parseFloat(document.getElementById('shipperCount').value) || 0;
             const resultBox = document.getElementById('targetResult');
             const valueElement = resultBox.querySelector('.target-value');
+            const timeElement = document.getElementById('targetTime');
+            const formula = getCurrentFormula();
             
             // Update 10% boxes based on target
             if (targetValue > 0) {
@@ -1643,6 +1691,7 @@ w2QjzsKE==" type="audio/wav">
             
             if (targetValue === 0) {
                 valueElement.textContent = '--';
+                timeElement.textContent = '';
                 resultBox.className = 'target-result-box';
                 return;
             }
@@ -1650,24 +1699,46 @@ w2QjzsKE==" type="audio/wav">
             const difference = currentShipper - targetValue;
             const percentDiff = (Math.abs(difference) / targetValue) * 100;
             
+            // Calculate time based on pouch difference
+            const pouchDifference = Math.abs(difference) * formula.pouchToShipper;
+            const speed = formula.speed; // pouches per minute
+            
+            let timeText = '';
+            if (speed > 0 && difference !== 0) {
+                const totalMinutes = Math.ceil(pouchDifference / speed);
+                const hours = Math.floor(totalMinutes / 60);
+                const minutes = totalMinutes % 60;
+                
+                const sign = difference < 0 ? '-' : '+';
+                if (hours > 0) {
+                    timeText = `${sign}${hours}h ${minutes}min`;
+                } else {
+                    timeText = `${sign}${minutes}min`;
+                }
+            }
+            
             // Remove all classes
             resultBox.className = 'target-result-box';
             
             if (difference === 0) {
                 // Exact match
                 valueElement.textContent = '✅ Done';
+                timeElement.textContent = '';
                 resultBox.classList.add('target-done');
             } else if (difference > 0) {
                 // Excess production (RED)
                 valueElement.textContent = `+${Math.floor(difference)}`;
+                timeElement.textContent = timeText;
                 resultBox.classList.add('target-excess');
             } else if (percentDiff <= 10) {
                 // Within 10% less (GREEN - acceptable)
                 valueElement.textContent = `${Math.floor(difference)}`;
+                timeElement.textContent = timeText;
                 resultBox.classList.add('target-acceptable');
             } else {
                 // More than 10% less (BLUE - too low)
                 valueElement.textContent = `${Math.floor(difference)}`;
+                timeElement.textContent = timeText;
                 resultBox.classList.add('target-low');
             }
         }
@@ -1761,13 +1832,27 @@ w2QjzsKE==" type="audio/wav">
             
             // Initialize formula display with current weight
             const currentWeight = weights[currentWeightIndex];
+            const formula = getCurrentFormula();
+            const unit = formula.unit || 'Pouch';
+            
             document.getElementById('currentWeight').textContent = currentWeight;
             document.getElementById('formulaWeight').textContent = currentWeight;
             document.getElementById('weightDropdown').value = currentWeightIndex;
-            const formula = getCurrentFormula();
-            document.getElementById('formula1').textContent = `✓ ${formula.pouchToShipper} Pouch = 1 Shipper`;
+            
+            // Update label based on unit
+            const pouchLabel = document.querySelector('label[for="pouchCount"]');
+            if (pouchLabel) {
+                pouchLabel.textContent = `📦 ${unit} Count`;
+            }
+            
+            // Update formula display with speed
+            document.getElementById('formula1').textContent = `✓ ${formula.pouchToShipper} ${unit} = 1 Shipper`;
             document.getElementById('formula2').textContent = `✓ ${formula.shipperToPallet} Shipper = 1 Pallet`;
-            document.getElementById('formula3').textContent = `✓ ${formula.pouchToPallet} Pouch = 1 Pallet`;
+            document.getElementById('formula3').textContent = `✓ ${formula.pouchToPallet} ${unit} = 1 Pallet`;
+            
+            // Update speed display
+            const speedText = formula.speed > 0 ? `${formula.speed} ${unit}/min` : 'Not Set';
+            document.getElementById('formula4').textContent = `⚡ Speed: ${speedText}`;
         };
     </script>
 </body>
