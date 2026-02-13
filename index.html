@@ -1300,6 +1300,9 @@
         <header>
             <h1>🏭 Production Calculator</h1>
             <div class="header-right">
+                <div class="dark-mode-toggle" onclick="refreshAll()" title="Refresh All">
+                    <span id="refreshIcon">🔄</span>
+                </div>
                 <div class="dark-mode-toggle" onclick="toggleDarkMode()" title="Toggle Mode">
                     <span id="darkModeIcon">☀️</span>
                 </div>
@@ -1966,6 +1969,18 @@ w2QjzsKE==" type="audio/wav">
                 themeSwitch.classList.remove('active');
                 localStorage.setItem('calculatorDarkMode', 'disabled');
             }
+        }
+
+        // Refresh All - Recalculate target time
+        function refreshAll() {
+            // Just recalculate target - don't clear anything
+            calculateTarget();
+            
+            // Play sound
+            playWeightSound();
+            
+            // Show alert
+            showCornerAlert('🔄 Time Refreshed', 'weight-alert', 2000);
         }
 
         // Load dark mode preference
