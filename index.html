@@ -96,20 +96,7 @@
         }
 
         body.dark-mode .container::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 2px;
-            background: linear-gradient(90deg, transparent, #00ffff, transparent);
-            animation: borderGlow 2s linear infinite;
-        }
-
-        @keyframes borderGlow {
-            0% { opacity: 0.3; }
-            50% { opacity: 1; }
-            100% { opacity: 0.3; }
+            display: none;
         }
 
         body.dark-mode input[type="number"] {
@@ -124,15 +111,7 @@
 
         body.dark-mode input[type="number"]:focus {
             border-color: #00ffff;
-            box-shadow: 
-                0 0 25px rgba(0, 255, 255, 0.6),
-                inset 0 0 15px rgba(0, 150, 200, 0.4);
-            animation: inputPulse 1.5s ease-in-out infinite;
-        }
-
-        @keyframes inputPulse {
-            0%, 100% { box-shadow: 0 0 25px rgba(0, 255, 255, 0.6), inset 0 0 15px rgba(0, 150, 200, 0.4); }
-            50% { box-shadow: 0 0 35px rgba(0, 255, 255, 0.8), inset 0 0 20px rgba(0, 150, 200, 0.6); }
+            box-shadow: 0 0 15px rgba(0, 255, 255, 0.4);
         }
 
         body.dark-mode .result-item {
@@ -146,19 +125,7 @@
         }
 
         body.dark-mode .result-item::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: -100%;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(0, 255, 255, 0.1), transparent);
-            animation: shimmer 3s infinite;
-        }
-
-        @keyframes shimmer {
-            0% { left: -100%; }
-            100% { left: 100%; }
+            display: none;
         }
 
         body.dark-mode .result-label {
@@ -168,13 +135,7 @@
 
         body.dark-mode .result-value {
             color: #00ffff;
-            text-shadow: 0 0 15px rgba(0, 255, 255, 1);
-            animation: valueGlow 2s ease-in-out infinite;
-        }
-
-        @keyframes valueGlow {
-            0%, 100% { text-shadow: 0 0 15px rgba(0, 255, 255, 1); }
-            50% { text-shadow: 0 0 25px rgba(0, 255, 255, 1), 0 0 35px rgba(0, 200, 255, 0.8); }
+            text-shadow: 0 0 10px rgba(0, 255, 255, 0.6);
         }
 
         body.dark-mode .results {
@@ -769,6 +730,7 @@
             display: block;
             font-size: 20px;
             font-weight: 800;
+            position: relative;
         }
 
         .lowest .range-value {
@@ -777,6 +739,54 @@
 
         .highest .range-value {
             color: #f44336;
+        }
+
+        /* Blinking dot indicator */
+        .range-dot {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            background: #ff0000;
+            border-radius: 50%;
+            margin-left: 8px;
+            animation: dotBlink 1s ease-in-out infinite;
+            box-shadow: 0 0 10px rgba(255, 0, 0, 0.8);
+        }
+
+        /* Fast blinking dot for over 10% excess */
+        .range-dot-fast {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            background: #ff0000;
+            border-radius: 50%;
+            margin-left: 8px;
+            animation: dotBlinkFast 0.4s ease-in-out infinite;
+            box-shadow: 0 0 15px rgba(255, 0, 0, 1);
+        }
+
+        @keyframes dotBlink {
+            0%, 100% { 
+                opacity: 1;
+                transform: scale(1);
+            }
+            50% { 
+                opacity: 0.3;
+                transform: scale(1.3);
+            }
+        }
+
+        @keyframes dotBlinkFast {
+            0%, 100% { 
+                opacity: 1;
+                transform: scale(1);
+                box-shadow: 0 0 15px rgba(255, 0, 0, 1);
+            }
+            50% { 
+                opacity: 0.2;
+                transform: scale(1.5);
+                box-shadow: 0 0 25px rgba(255, 0, 0, 1);
+            }
         }
 
         .input-group {
@@ -1036,13 +1046,33 @@
         }
 
         .target-excess {
-            background: rgba(150, 0, 0, 0.3) !important;
+            background: #ffffff !important;
             border-color: #ff0000 !important;
             box-shadow: 0 0 20px rgba(255, 0, 0, 0.4) !important;
         }
 
         .target-excess .target-value {
             color: #ff0000 !important;
+            font-weight: 800;
+        }
+
+        .target-excess-high {
+            background: #000000 !important;
+            border-color: #000000 !important;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.5) !important;
+        }
+
+        .target-excess-high .target-value {
+            color: #ffffff !important;
+            font-weight: 800;
+        }
+
+        .target-excess-high .target-label {
+            color: #ffffff !important;
+        }
+
+        .target-excess-high .target-time {
+            color: #ffffff !important;
         }
 
         .target-acceptable {
@@ -1113,9 +1143,9 @@
         }
 
         .corner-alert.target-alert.excess {
-            background: rgba(150, 0, 0, 0.95);
-            border-color: rgba(255, 0, 0, 0.8);
-            color: #ff6666;
+            background: rgba(0, 0, 0, 0.95);
+            border-color: rgba(50, 50, 50, 0.8);
+            color: #ffffff;
         }
 
         @media (max-width: 480px) {
@@ -1348,12 +1378,7 @@
 
         <!-- Input Fields -->
         <div class="input-group">
-            <label for="pouchCount">� Pouch Count</label>
-            <input type="number" id="pouchCount" placeholder="Enter pouches" min="0" step="1" oninput="calculateFromPouch()">
-        </div>
-
-        <div class="input-group">
-            <label for="shipperCount">📦 Shipper Count</label>
+            <label for="shipperCount">� Shipper Count</label>
             <div class="input-row">
                 <input type="number" class="input-half" id="shipperCount" placeholder="Shippers" min="0" step="1" oninput="calculateFromShipper()">
                 <div class="extra-box" id="extraPouch">+ 0 Pouch</div>
@@ -1366,6 +1391,11 @@
                 <input type="number" class="input-half" id="palletCount" placeholder="Pallets" min="0" step="1" oninput="calculateFromPallet()">
                 <div class="extra-box" id="extraShipper">+ 0 Shipper</div>
             </div>
+        </div>
+
+        <div class="input-group">
+            <label for="pouchCount">📦 Pouch Count</label>
+            <input type="number" id="pouchCount" placeholder="Enter pouches" min="0" step="1" oninput="calculateFromPouch()">
         </div>
 
         <!-- Results -->
@@ -1671,8 +1701,26 @@ w2QjzsKE==" type="audio/wav">
                 const lowest = Math.floor(targetValue * 0.9);  // Target - 10%
                 const highest = Math.floor(targetValue * 1.1); // Target + 10%
                 
-                document.getElementById('shipperLowest').textContent = lowest;
-                document.getElementById('shipperHighest').textContent = highest;
+                // Check if current shipper is in range
+                const inLowRange = shipperCount >= lowest && shipperCount < targetValue;
+                const inHighRange = shipperCount > targetValue && shipperCount <= highest;
+                const overHighRange = shipperCount > highest; // More than 10% excess
+                
+                // Update lowest box with dot if in range
+                if (inLowRange) {
+                    document.getElementById('shipperLowest').innerHTML = `${lowest} <span class="range-dot"></span>`;
+                } else {
+                    document.getElementById('shipperLowest').textContent = lowest;
+                }
+                
+                // Update highest box with dot
+                if (inHighRange) {
+                    // Normal blink - within 10% excess only
+                    document.getElementById('shipperHighest').innerHTML = `${highest} <span class="range-dot"></span>`;
+                } else {
+                    // No dot if not in range or over 10%
+                    document.getElementById('shipperHighest').textContent = highest;
+                }
             } else if (shipperCount > 0) {
                 // If no target but shipper has value, show shipper's 10% range
                 const lowest = Math.floor(shipperCount * 0.9);
@@ -1859,8 +1907,27 @@ w2QjzsKE==" type="audio/wav">
             if (targetValue > 0) {
                 const lowest = Math.floor(targetValue * 0.9);
                 const highest = Math.floor(targetValue * 1.1);
-                document.getElementById('shipperLowest').textContent = lowest;
-                document.getElementById('shipperHighest').textContent = highest;
+                
+                // Check if current shipper is in range and add dots
+                const inLowRange = currentShipper >= lowest && currentShipper < targetValue;
+                const inHighRange = currentShipper > targetValue && currentShipper <= highest;
+                const overHighRange = currentShipper > highest;
+                
+                // Update lowest box with dot if in range
+                if (inLowRange) {
+                    document.getElementById('shipperLowest').innerHTML = `${lowest} <span class="range-dot"></span>`;
+                } else {
+                    document.getElementById('shipperLowest').textContent = lowest;
+                }
+                
+                // Update highest box with dot
+                if (inHighRange) {
+                    // Normal blink - within 10% excess only
+                    document.getElementById('shipperHighest').innerHTML = `${highest} <span class="range-dot"></span>`;
+                } else {
+                    // No dot if not in range or over 10%
+                    document.getElementById('shipperHighest').textContent = highest;
+                }
             }
             
             if (targetValue === 0) {
@@ -1901,11 +1968,20 @@ w2QjzsKE==" type="audio/wav">
                 resultBox.classList.add('target-done');
                 showCornerAlert('🎯 Target Achieved!', 'target-alert', 2500);
             } else if (difference > 0) {
-                // Excess production (RED)
-                valueElement.textContent = `+${Math.floor(difference)}`;
-                timeElement.textContent = timeText;
-                resultBox.classList.add('target-excess');
-                showCornerAlert(`📈 +${Math.floor(difference)} Over Target`, 'target-alert excess', 2500);
+                // Check if excess is more than 10%
+                if (percentDiff > 10) {
+                    // More than 10% excess - BLACK background, WHITE text with FAST blinking dot
+                    valueElement.innerHTML = `+${Math.floor(difference)} <span class="range-dot-fast"></span>`;
+                    timeElement.textContent = timeText;
+                    resultBox.classList.add('target-excess-high');
+                    showCornerAlert(`⚠️ +${Math.floor(difference)} (Over 10%)`, 'target-alert excess', 2500);
+                } else {
+                    // Within 10% excess - WHITE background, RED text (NO DOT)
+                    valueElement.textContent = `+${Math.floor(difference)}`;
+                    timeElement.textContent = timeText;
+                    resultBox.classList.add('target-excess');
+                    showCornerAlert(`� +${Math.floor(difference)} Over Target`, 'target-alert excess', 2500);
+                }
             } else if (percentDiff <= 10) {
                 // Within 10% less (GREEN - acceptable)
                 valueElement.textContent = `${Math.floor(difference)}`;
