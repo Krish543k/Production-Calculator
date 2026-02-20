@@ -407,6 +407,117 @@
             display: block;
         }
 
+        /* How to Use Popup */
+        .howto-popup {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(0.8);
+            width: 90%;
+            max-width: 500px;
+            max-height: 80vh;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 15px;
+            padding: 20px;
+            z-index: 1001;
+            display: none;
+            opacity: 0;
+            transition: all 0.3s ease;
+            overflow-y: auto;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+        }
+
+        .howto-popup.open {
+            display: block;
+            opacity: 1;
+            transform: translate(-50%, -50%) scale(1);
+        }
+
+        body.dark-mode .howto-popup {
+            background: linear-gradient(135deg, rgba(0, 50, 100, 0.98) 0%, rgba(0, 30, 60, 0.98) 100%);
+            border: 2px solid rgba(0, 255, 255, 0.4);
+        }
+
+        .howto-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid rgba(255,255,255,0.3);
+        }
+
+        .howto-title {
+            font-size: 22px;
+            font-weight: 700;
+            color: white;
+        }
+
+        body.dark-mode .howto-title {
+            color: #00ffff;
+            text-shadow: 0 0 10px rgba(0, 255, 255, 0.6);
+        }
+
+        .howto-close {
+            font-size: 30px;
+            color: white;
+            cursor: pointer;
+            line-height: 1;
+            transition: all 0.3s ease;
+        }
+
+        .howto-close:hover {
+            transform: rotate(90deg);
+            color: #ff6b6b;
+        }
+
+        .howto-content {
+            color: white;
+            line-height: 1.6;
+        }
+
+        body.dark-mode .howto-content {
+            color: #00ffff;
+        }
+
+        .howto-section {
+            margin-bottom: 20px;
+            padding: 15px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 10px;
+            border-left: 4px solid #ffc107;
+        }
+
+        body.dark-mode .howto-section {
+            background: rgba(0, 255, 255, 0.1);
+            border-left: 4px solid #00ffff;
+        }
+
+        .howto-section h3 {
+            font-size: 18px;
+            margin-bottom: 10px;
+            color: #ffc107;
+        }
+
+        body.dark-mode .howto-section h3 {
+            color: #00ffff;
+        }
+
+        .howto-section p {
+            font-size: 14px;
+            margin: 5px 0;
+        }
+
+        .howto-section ul {
+            margin: 10px 0;
+            padding-left: 20px;
+        }
+
+        .howto-section li {
+            margin: 5px 0;
+            font-size: 14px;
+        }
+
         /* Loading Screen */
         .loading-screen {
             position: fixed;
@@ -1227,7 +1338,72 @@
     </div>
     
     <!-- Settings Overlay -->
-    <div class="settings-overlay" id="settingsOverlay" onclick="closeSettings()"></div>
+    <div class="settings-overlay" id="settingsOverlay" onclick="closeSettings(); closeHowToUse();"></div>
+    
+    <!-- How to Use Popup -->
+    <div class="howto-popup" id="howtoPopup">
+        <div class="howto-header">
+            <span class="howto-title">📱 How to Use</span>
+            <span class="howto-close" onclick="closeHowToUse()">×</span>
+        </div>
+        <div class="howto-content">
+            <div class="howto-section">
+                <h3>🎯 STEP 1: Weight Select Karo</h3>
+                <p>• Top par "WEIGHT" section mein ◀ ▶ arrows par tap karo</p>
+                <p>• Apna weight select karo (300g, 500g, 750g, 1kg, etc.)</p>
+                <p>• Weight change hone par formula automatically update hoga</p>
+            </div>
+
+            <div class="howto-section">
+                <h3>🔢 STEP 2: Calculation Karo</h3>
+                <p><strong>📦 Current Shipper:</strong></p>
+                <p>→ Shipper count daalo, automatically Pouch aur Pallet calculate hoga</p>
+                <p><strong>🚛 Pallet Count:</strong></p>
+                <p>→ Pallet count daalo, automatically Shipper aur Pouch calculate hoga</p>
+                <p><strong>📦 Current Pouch:</strong></p>
+                <p>→ Pouch count daalo, automatically Shipper aur Pallet calculate hoga</p>
+            </div>
+
+            <div class="howto-section">
+                <h3>📊 STEP 3: Results Dekho</h3>
+                <p>Neeche "Results" section mein dikhega:</p>
+                <ul>
+                    <li>📦 Total Pouches</li>
+                    <li>📦 Total Shippers</li>
+                    <li>🚛 Total Pallets</li>
+                </ul>
+            </div>
+
+            <div class="howto-section">
+                <h3>📋 STEP 4: Formula Dekho</h3>
+                <p>Results ke neeche formula dikhega:</p>
+                <ul>
+                    <li>✓ Pouch = Shipper</li>
+                    <li>✓ Shipper = Pallet</li>
+                    <li>✓ Pouch = Pallet</li>
+                    <li>⚡ Speed: Pouch/min</li>
+                </ul>
+            </div>
+
+            <div class="howto-section">
+                <h3>⚙️ STEP 5: Custom Formula (Optional)</h3>
+                <p>1. Settings (⚙️) mein jao</p>
+                <p>2. "Manual Formula" toggle ON karo</p>
+                <p>3. Form fill karo aur Save karo</p>
+                <p>4. Saved formulas list mein dikhenge</p>
+            </div>
+
+            <div class="howto-section">
+                <h3>💡 Tips</h3>
+                <ul>
+                    <li>✓ Sirf ek field mein number daalo</li>
+                    <li>✓ Baaki auto calculate hoga</li>
+                    <li>✓ Refresh button (↻) se reset karo</li>
+                    <li>✓ Dark mode (☀️/🌙) switch kar sakte ho</li>
+                </ul>
+            </div>
+        </div>
+    </div>
     
     <!-- Settings Panel -->
     <div class="settings-panel" id="settingsPanel">
@@ -1288,18 +1464,61 @@
             </div>
         </div>
 
-        <!-- How to Use Guide -->
+        <!-- How to Use Button -->
         <div class="settings-section">
-            <label class="settings-label">📖 How to Use</label>
-            <div style="background: rgba(0, 30, 60, 0.3); padding: 15px; border-radius: 8px; font-size: 13px; line-height: 1.8; color: #00ffff;">
-                <p style="margin-bottom: 10px;"><strong>1. Weight Select:</strong> Arrow buttons ya settings se weight choose karo</p>
-                <p style="margin-bottom: 10px;"><strong>2. Input:</strong> Pouch, Shipper ya Pallet mein se koi ek value dalo</p>
-                <p style="margin-bottom: 10px;"><strong>3. Auto Calculate:</strong> Baaki sab automatically calculate ho jayega</p>
-                <p style="margin-bottom: 10px;"><strong>4. Target:</strong> Target Shipper dalo to difference aur time dikhega</p>
-                <p style="margin-bottom: 10px;"><strong>5. 10% Range:</strong> Target ka 10% range Lowest/Highest mein dikhta hai</p>
-                <p style="margin-bottom: 0;"><strong>6. Refresh:</strong> 🔄 button se sab clear karo</p>
+            <label class="settings-label">❓ Help</label>
+            <button onclick="showHowToUse()" style="width: 100%; padding: 12px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; border-radius: 8px; font-size: 16px; font-weight: 600; cursor: pointer; transition: all 0.3s ease;">
+                📖 How to Use
+            </button>
+        </div>
+
+        <!-- Manual Formula Add -->
+        <div class="settings-section">
+            <label class="settings-label">➕ Add Custom Formula</label>
+            <div class="toggle-switch" onclick="toggleManualFormula()">
+                <span>Manual Formula</span>
+                <div class="switch" id="manualFormulaSwitch">
+                    <div class="switch-knob"></div>
+                </div>
+            </div>
+            
+            <!-- Manual Formula Form (Hidden by default) -->
+            <div id="manualFormulaForm" style="display: none; margin-top: 15px; background: rgba(0, 30, 60, 0.5); padding: 15px; border-radius: 8px; border: 1px solid rgba(0, 255, 255, 0.3);">
+                <div style="margin-bottom: 12px;">
+                    <label style="display: block; color: #00ffff; font-size: 12px; margin-bottom: 5px;">Weight Name (e.g., 750g, 1.5kg)</label>
+                    <input type="text" id="customWeightName" placeholder="750g" style="width: 100%; padding: 8px; border-radius: 6px; border: 1px solid rgba(0, 255, 255, 0.4); background: rgba(0, 20, 40, 0.8); color: #00ffff; font-size: 14px;">
+                </div>
+                
+                <div style="margin-bottom: 12px;">
+                    <label style="display: block; color: #00ffff; font-size: 12px; margin-bottom: 5px;">Unit Name (Pouch/Met/Bag)</label>
+                    <input type="text" id="customUnitName" placeholder="Pouch" value="Pouch" style="width: 100%; padding: 8px; border-radius: 6px; border: 1px solid rgba(0, 255, 255, 0.4); background: rgba(0, 20, 40, 0.8); color: #00ffff; font-size: 14px;">
+                </div>
+                
+                <div style="margin-bottom: 12px;">
+                    <label style="display: block; color: #00ffff; font-size: 12px; margin-bottom: 5px;">Pouch/Unit per Shipper</label>
+                    <input type="number" id="customPouchToShipper" placeholder="24" min="1" style="width: 100%; padding: 8px; border-radius: 6px; border: 1px solid rgba(0, 255, 255, 0.4); background: rgba(0, 20, 40, 0.8); color: #00ffff; font-size: 14px;">
+                </div>
+                
+                <div style="margin-bottom: 12px;">
+                    <label style="display: block; color: #00ffff; font-size: 12px; margin-bottom: 5px;">Shipper per Pallet</label>
+                    <input type="number" id="customShipperToPallet" placeholder="42" min="1" style="width: 100%; padding: 8px; border-radius: 6px; border: 1px solid rgba(0, 255, 255, 0.4); background: rgba(0, 20, 40, 0.8); color: #00ffff; font-size: 14px;">
+                </div>
+                
+                <div style="margin-bottom: 15px;">
+                    <label style="display: block; color: #00ffff; font-size: 12px; margin-bottom: 5px;">Speed (Unit/min) - Optional</label>
+                    <input type="number" id="customSpeed" placeholder="40" min="0" style="width: 100%; padding: 8px; border-radius: 6px; border: 1px solid rgba(0, 255, 255, 0.4); background: rgba(0, 20, 40, 0.8); color: #00ffff; font-size: 14px;">
+                </div>
+                
+                <button onclick="saveCustomFormula()" style="width: 100%; padding: 10px; background: linear-gradient(135deg, #00ffff, #0088ff); color: #000; border: none; border-radius: 6px; font-weight: 700; font-size: 14px; cursor: pointer; transition: all 0.3s;">
+                    💾 Save Formula
+                </button>
+                
+                <div id="customFormulaList" style="margin-top: 15px;">
+                    <!-- Custom formulas will appear here -->
+                </div>
             </div>
         </div>
+
     </div>
 
     <!-- JARVIS scan line effect -->
@@ -1378,7 +1597,7 @@
 
         <!-- Input Fields -->
         <div class="input-group">
-            <label for="shipperCount">� Shipper Count</label>
+            <label for="shipperCount">📦 Current Shipper</label>
             <div class="input-row">
                 <input type="number" class="input-half" id="shipperCount" placeholder="Shippers" min="0" step="1" oninput="calculateFromShipper()">
                 <div class="extra-box" id="extraPouch">+ 0 Pouch</div>
@@ -1386,15 +1605,16 @@
         </div>
 
         <div class="input-group">
-            <label for="palletCount">� Pallet Count</label>
+            <label for="palletCount">  Pallet Count</label>
             <div class="input-row">
                 <input type="number" class="input-half" id="palletCount" placeholder="Pallets" min="0" step="1" oninput="calculateFromPallet()">
                 <div class="extra-box" id="extraShipper">+ 0 Shipper</div>
             </div>
         </div>
 
+    
         <div class="input-group">
-            <label for="pouchCount">📦 Pouch Count</label>
+            <label for="pouchCount">📦 Current Pouch</label>
             <input type="number" id="pouchCount" placeholder="Enter pouches" min="0" step="1" oninput="calculateFromPouch()">
         </div>
 
@@ -1423,8 +1643,6 @@
             <p id="formula4">⚡ Speed: 40 Pouch/min</p>
         </div>
     </div>
-
-    <!-- Typing Sound -->
     <audio id="typingSound" preload="auto">
         <source src="data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+DyvmwhBSuBzvLZiTYIGGS57OihUBELTKXh8bllHAU2jdXvzn0pBSh+zPDajzsKElyx6OyrWBQLSKDf8sFuJAUuhM/z24k2CBhku+zooVARC0yl4fG5ZRwFNo3V7859KQUofsz
 w2QjzsKElyx6OyrWBQLSKDf8sFuJAUuhM/z24k2CBhku+zooVARC0yl4fG5ZRwFNo3V7859KQUofsz
@@ -1444,22 +1662,23 @@ w2QjzsKE==" type="audio/wav">
         let soundEnabled = true; // Sound enabled by default
         let alertTimeout = null;
         let calculationTimeout = null;
+        let customFormulas = {}; // Store custom formulas
         const weights = ['70g', '300g', '500g', '850g', '900g', '1kg', '2kg', '3kg', '3.2kg', '4kg', '5kg', '6kg'];
         
         // Formulas for each weight
         const formulas = {
-            '70g': { pouchToShipper: 2, shipperToPallet: 48, pouchToPallet: 96, speed: 0, unit: 'Met' },
-            '300g': { pouchToShipper: 24, shipperToPallet: 42, pouchToPallet: 1008, speed: 40, unit: 'Pouch' },
-            '500g': { pouchToShipper: 24, shipperToPallet: 36, pouchToPallet: 864, speed: 40, unit: 'Pouch' },
-            '850g': { pouchToShipper: 12, shipperToPallet: 50, pouchToPallet: 600, speed: 40, unit: 'Pouch' },
-            '900g': { pouchToShipper: 12, shipperToPallet: 50, pouchToPallet: 600, speed: 40, unit: 'Pouch' },
-            '1kg': { pouchToShipper: 12, shipperToPallet: 50, pouchToPallet: 600, speed: 40, unit: 'Pouch' },
-            '2kg': { pouchToShipper: 6, shipperToPallet: 40, pouchToPallet: 240, speed: 30, unit: 'Pouch' },
-            '3kg': { pouchToShipper: 4, shipperToPallet: 40, pouchToPallet: 160, speed: 25, unit: 'Pouch' },
-            '3.2kg': { pouchToShipper: 4, shipperToPallet: 40, pouchToPallet: 160, speed: 25, unit: 'Pouch' },
-            '4kg': { pouchToShipper: 4, shipperToPallet: 32, pouchToPallet: 128, speed: 21, unit: 'Pouch' },
-            '5kg': { pouchToShipper: 2, shipperToPallet: 60, pouchToPallet: 120, speed: 10, unit: 'Pouch' },
-            '6kg': { pouchToShipper: 2, shipperToPallet: 45, pouchToPallet: 90, speed: 0, unit: 'Pouch' }
+            '70g': { pouchToShipper: 2, shipperToPallet: 48, pouchToPallet: 96, palletToTray: 20, speed: 0, unit: 'Met' },
+            '300g': { pouchToShipper: 24, shipperToPallet: 42, pouchToPallet: 1008, palletToTray: 20, speed: 40, unit: 'Pouch' },
+            '500g': { pouchToShipper: 24, shipperToPallet: 36, pouchToPallet: 864, palletToTray: 20, speed: 40, unit: 'Pouch' },
+            '850g': { pouchToShipper: 12, shipperToPallet: 50, pouchToPallet: 600, palletToTray: 20, speed: 40, unit: 'Pouch' },
+            '900g': { pouchToShipper: 12, shipperToPallet: 50, pouchToPallet: 600, palletToTray: 20, speed: 40, unit: 'Pouch' },
+            '1kg': { pouchToShipper: 12, shipperToPallet: 50, pouchToPallet: 600, palletToTray: 20, speed: 40, unit: 'Pouch' },
+            '2kg': { pouchToShipper: 6, shipperToPallet: 40, pouchToPallet: 240, palletToTray: 20, speed: 30, unit: 'Pouch' },
+            '3kg': { pouchToShipper: 4, shipperToPallet: 40, pouchToPallet: 160, palletToTray: 20, speed: 25, unit: 'Pouch' },
+            '3.2kg': { pouchToShipper: 4, shipperToPallet: 40, pouchToPallet: 160, palletToTray: 20, speed: 25, unit: 'Pouch' },
+            '4kg': { pouchToShipper: 4, shipperToPallet: 32, pouchToPallet: 128, palletToTray: 20, speed: 21, unit: 'Pouch' },
+            '5kg': { pouchToShipper: 2, shipperToPallet: 60, pouchToPallet: 120, palletToTray: 20, speed: 10, unit: 'Pouch' },
+            '6kg': { pouchToShipper: 2, shipperToPallet: 45, pouchToPallet: 90, palletToTray: 20, speed: 0, unit: 'Pouch' }
         };
 
         // Settings functions
@@ -1501,11 +1720,12 @@ w2QjzsKE==" type="audio/wav">
             const speedText = formula.speed > 0 ? `${formula.speed} ${unit}/min` : 'Not Set';
             document.getElementById('formula4').textContent = `⚡ Speed: ${speedText}`;
             
-            // Recalculate
+            // Update extra boxes with new unit
             const pouchInput = document.getElementById('pouchCount');
             const shipperInput = document.getElementById('shipperCount');
             const palletInput = document.getElementById('palletCount');
             
+            // Recalculate - prioritize the field that has a value
             if (pouchInput.value) {
                 calculateFromPouch();
             } else if (shipperInput.value) {
@@ -1513,9 +1733,23 @@ w2QjzsKE==" type="audio/wav">
             } else if (palletInput.value) {
                 calculateFromPallet();
             } else {
-                // Even if no input values, recalculate target if target is set
+                // Update extra boxes even if no values
+                document.getElementById('extraPouch').textContent = `+ 0 ${unit}`;
+                document.getElementById('extraShipper').textContent = `+ 0 Shipper`;
+                // Recalculate target if target is set
                 calculateTarget();
             }
+        }
+
+        // How to Use functions
+        function showHowToUse() {
+            document.getElementById('howtoPopup').classList.add('open');
+            document.getElementById('settingsOverlay').classList.add('open');
+        }
+
+        function closeHowToUse() {
+            document.getElementById('howtoPopup').classList.remove('open');
+            document.getElementById('settingsOverlay').classList.remove('open');
         }
 
         function toggleJarvisLines() {
@@ -1551,6 +1785,156 @@ w2QjzsKE==" type="audio/wav">
                 playWeightSound(); // Play sound to confirm it's ON
             } else {
                 localStorage.setItem('soundEnabled', 'disabled');
+            }
+        }
+
+        // Toggle Manual Formula Form
+        function toggleManualFormula() {
+            const manualSwitch = document.getElementById('manualFormulaSwitch');
+            const manualForm = document.getElementById('manualFormulaForm');
+            
+            manualSwitch.classList.toggle('active');
+            
+            if (manualSwitch.classList.contains('active')) {
+                manualForm.style.display = 'block';
+            } else {
+                manualForm.style.display = 'none';
+            }
+            playWeightSound();
+        }
+
+        // Save Custom Formula
+        function saveCustomFormula() {
+            const weightName = document.getElementById('customWeightName').value.trim();
+            const unitName = document.getElementById('customUnitName').value.trim() || 'Pouch';
+            const pouchToShipper = parseInt(document.getElementById('customPouchToShipper').value);
+            const shipperToPallet = parseInt(document.getElementById('customShipperToPallet').value);
+            const palletToTray = 20; // Default value
+            const speed = parseInt(document.getElementById('customSpeed').value) || 0;
+            
+            // Validation
+            if (!weightName) {
+                alert('❌ Please enter weight name!');
+                return;
+            }
+            if (!pouchToShipper || pouchToShipper < 1) {
+                alert('❌ Please enter valid Pouch per Shipper!');
+                return;
+            }
+            if (!shipperToPallet || shipperToPallet < 1) {
+                alert('❌ Please enter valid Shipper per Pallet!');
+                return;
+            }
+            
+            // Calculate pouchToPallet
+            const pouchToPallet = pouchToShipper * shipperToPallet;
+            
+            // Add to formulas object
+            formulas[weightName] = {
+                pouchToShipper: pouchToShipper,
+                shipperToPallet: shipperToPallet,
+                pouchToPallet: pouchToPallet,
+                speed: speed,
+                unit: unitName
+            };
+            
+            // Add to weights array if not exists
+            if (!weights.includes(weightName)) {
+                weights.push(weightName);
+            }
+            
+            // Update dropdown
+            updateWeightDropdown();
+            
+            // Save to localStorage
+            localStorage.setItem('customFormulas', JSON.stringify(formulas));
+            localStorage.setItem('weights', JSON.stringify(weights));
+            
+            // Clear form
+            document.getElementById('customWeightName').value = '';
+            document.getElementById('customUnitName').value = 'Pouch';
+            document.getElementById('customPouchToShipper').value = '';
+            document.getElementById('customShipperToPallet').value = '';
+            document.getElementById('customSpeed').value = '';
+            
+            // Show success message
+            showCornerAlert(`✅ ${weightName} Formula Added!`, 'weight-alert', 3000);
+            playWeightSound();
+            
+            // Display custom formulas list
+            displayCustomFormulas();
+        }
+
+        // Update Weight Dropdown
+        function updateWeightDropdown() {
+            const dropdown = document.getElementById('weightDropdown');
+            dropdown.innerHTML = '';
+            
+            weights.forEach((weight, index) => {
+                const option = document.createElement('option');
+                option.value = index;
+                option.textContent = weight;
+                dropdown.appendChild(option);
+            });
+        }
+
+        // Display Custom Formulas
+        function displayCustomFormulas() {
+            const listDiv = document.getElementById('customFormulaList');
+            listDiv.innerHTML = '<div style="color: #00ffff; font-size: 13px; font-weight: 600; margin-bottom: 10px; border-top: 1px solid rgba(0, 255, 255, 0.3); padding-top: 10px;">📋 Custom Formulas:</div>';
+            
+            // Show only custom formulas (not default ones)
+            const defaultWeights = ['70g', '300g', '500g', '850g', '900g', '1kg', '2kg', '3kg', '3.2kg', '4kg', '5kg', '6kg'];
+            
+            weights.forEach((weight) => {
+                if (!defaultWeights.includes(weight)) {
+                    const formula = formulas[weight];
+                    const formulaDiv = document.createElement('div');
+                    formulaDiv.style.cssText = 'background: rgba(0, 50, 100, 0.3); padding: 10px; border-radius: 6px; margin-bottom: 8px; font-size: 12px; color: #00ffff; border: 1px solid rgba(0, 255, 255, 0.2);';
+                    formulaDiv.innerHTML = `
+                        <div style="font-weight: 700; margin-bottom: 5px;">${weight}</div>
+                        <div>• ${formula.pouchToShipper} ${formula.unit}/Shipper</div>
+                        <div>• ${formula.shipperToPallet} Shipper/Pallet</div>
+                        <div>• Speed: ${formula.speed > 0 ? formula.speed + ' ' + formula.unit + '/min' : 'Not Set'}</div>
+                        <button onclick="deleteCustomFormula('${weight}')" style="margin-top: 8px; padding: 5px 10px; background: rgba(255, 0, 0, 0.3); color: #ff6666; border: 1px solid rgba(255, 0, 0, 0.5); border-radius: 4px; cursor: pointer; font-size: 11px; width: 100%;">
+                            🗑️ Delete
+                        </button>
+                    `;
+                    listDiv.appendChild(formulaDiv);
+                }
+            });
+        }
+
+        // Delete Custom Formula
+        function deleteCustomFormula(weightName) {
+            if (confirm(`Delete ${weightName} formula?`)) {
+                // Remove from formulas
+                delete formulas[weightName];
+                
+                // Remove from weights array
+                const index = weights.indexOf(weightName);
+                if (index > -1) {
+                    weights.splice(index, 1);
+                }
+                
+                // Update dropdown
+                updateWeightDropdown();
+                
+                // Save to localStorage
+                localStorage.setItem('customFormulas', JSON.stringify(formulas));
+                localStorage.setItem('weights', JSON.stringify(weights));
+                
+                // Refresh display
+                displayCustomFormulas();
+                
+                // Reset to first weight if deleted weight was selected
+                if (currentWeightIndex >= weights.length) {
+                    currentWeightIndex = 0;
+                    updateWeightDisplay();
+                }
+                
+                showCornerAlert(`🗑️ ${weightName} Deleted!`, 'weight-alert', 2000);
+                playWeightSound();
             }
         }
 
@@ -1670,11 +2054,12 @@ w2QjzsKE==" type="audio/wav">
             const speedText = formula.speed > 0 ? `${formula.speed} ${unit}/min` : 'Not Set';
             document.getElementById('formula4').textContent = `⚡ Speed: ${speedText}`;
             
-            // Recalculate with new formula
+            // Update extra boxes with new unit
             const pouchInput = document.getElementById('pouchCount');
             const shipperInput = document.getElementById('shipperCount');
             const palletInput = document.getElementById('palletCount');
             
+            // Recalculate with new formula - prioritize the field that has a value
             if (pouchInput.value) {
                 calculateFromPouch();
             } else if (shipperInput.value) {
@@ -1682,7 +2067,10 @@ w2QjzsKE==" type="audio/wav">
             } else if (palletInput.value) {
                 calculateFromPallet();
             } else {
-                // Even if no input values, recalculate target if target is set
+                // Update extra boxes even if no values
+                document.getElementById('extraPouch').textContent = `+ 0 ${unit}`;
+                document.getElementById('extraShipper').textContent = `+ 0 Shipper`;
+                // Recalculate target if target is set
                 calculateTarget();
             }
         }
@@ -1756,7 +2144,7 @@ w2QjzsKE==" type="audio/wav">
                     document.getElementById('palletCount').value = '';
                     document.getElementById('extraPouch').textContent = `+ 0 ${unit}`;
                     document.getElementById('extraShipper').textContent = `+ 0 Shipper`;
-                    updateResults(0, 0, 0);
+                    updateResults(0, 0, 0);ateResults(0, 0, 0);
                     updateShipperRange(0);
                     return;
                 }
@@ -1814,7 +2202,7 @@ w2QjzsKE==" type="audio/wav">
                     return;
                 }
                 
-                const shipperCount = parseFloat(shipperInput) || 0;
+                const shipperCount = Math.floor(parseFloat(shipperInput)) || 0;
                 
                 const pouchCount = shipperCount * formula.pouchToShipper;
                 const palletCount = shipperCount / formula.shipperToPallet;
@@ -1826,11 +2214,11 @@ w2QjzsKE==" type="audio/wav">
                 // Extra pouch is 0 when entering shipper directly
                 document.getElementById('extraPouch').textContent = `+ 0 ${unit}`;
 
-                document.getElementById('pouchCount').value = Math.round(pouchCount);
+                document.getElementById('pouchCount').value = Math.floor(pouchCount);
                 document.getElementById('palletCount').value = fullPallets;
                 
-                // Update extra shipper box
-                document.getElementById('extraShipper').textContent = `+ ${extraShipper.toFixed(2)} Shipper`;
+                // Update extra shipper box - show whole number
+                document.getElementById('extraShipper').textContent = `+ ${Math.floor(extraShipper)} Shipper`;
 
                 updateResults(pouchCount, shipperCount, palletCount);
                 updateShipperRange(shipperCount);
@@ -1884,10 +2272,64 @@ w2QjzsKE==" type="audio/wav">
             }
         }
 
+        function calculateFromTray() {
+            if (isCalculating) {
+                setTimeout(() => { isCalculating = false; }, 100);
+                return;
+            }
+            isCalculating = true;
+            
+            try {
+                playSound();
+
+                const formula = getCurrentFormula();
+                const unit = formula.unit || 'Pouch';
+                const trayInput = document.getElementById('trayCount').value;
+                
+                // If input is empty, clear all fields
+                if (trayInput === '' || trayInput === null) {
+                    document.getElementById('pouchCount').value = '';
+                    document.getElementById('shipperCount').value = '';
+                    document.getElementById('palletCount').value = '';
+                    document.getElementById('extraPouch').textContent = `+ 0 ${unit}`;
+                    document.getElementById('extraShipper').textContent = `+ 0 Shipper`;
+                    document.getElementById('extraPallet').textContent = `+ 0 Pallet`;
+                    updateResults(0, 0, 0);
+                    updateShipperRange(0);
+                    return;
+                }
+                
+                const trayCount = parseFloat(trayInput) || 0;
+                const palletToTray = formula.palletToTray || 20;
+                
+                const palletCount = trayCount * palletToTray;
+                const shipperCount = palletCount * formula.shipperToPallet;
+                const pouchCount = palletCount * formula.pouchToPallet;
+                
+                // Calculate extra pallet (remainder)
+                const fullTrays = Math.floor(trayCount);
+                const extraPallet = Math.floor(palletCount) - (fullTrays * palletToTray);
+
+                document.getElementById('pouchCount').value = Math.round(pouchCount);
+                document.getElementById('shipperCount').value = Math.floor(shipperCount);
+                document.getElementById('palletCount').value = Math.floor(palletCount);
+                
+                // Extra boxes are 0 when entering tray directly
+                document.getElementById('extraPouch').textContent = `+ 0 ${unit}`;
+                document.getElementById('extraShipper').textContent = `+ 0 Shipper`;
+                document.getElementById('extraPallet').textContent = `+ ${extraPallet} Pallet`;
+
+                updateResults(pouchCount, shipperCount, palletCount);
+                updateShipperRange(shipperCount);
+            } finally {
+                isCalculating = false;
+            }
+        }
+
         function updateResults(pouch, shipper, pallet) {
-            document.getElementById('pouchResult').textContent = Math.round(pouch).toLocaleString();
-            document.getElementById('shipperResult').textContent = shipper.toFixed(2);
-            document.getElementById('palletResult').textContent = pallet.toFixed(2);
+            document.getElementById('pouchResult').textContent = Math.floor(pouch).toLocaleString();
+            document.getElementById('shipperResult').textContent = Math.floor(shipper).toLocaleString();
+            document.getElementById('palletResult').textContent = Math.floor(pallet).toLocaleString();
             
             // Auto-calculate target if target is set
             calculateTarget();
@@ -1980,7 +2422,7 @@ w2QjzsKE==" type="audio/wav">
                     valueElement.textContent = `+${Math.floor(difference)}`;
                     timeElement.textContent = timeText;
                     resultBox.classList.add('target-excess');
-                    showCornerAlert(`� +${Math.floor(difference)} Over Target`, 'target-alert excess', 2500);
+                    showCornerAlert(`  +${Math.floor(difference)} Over Target`, 'target-alert excess', 2500);
                 }
             } else if (percentDiff <= 10) {
                 // Within 10% less (GREEN - acceptable)
@@ -2140,6 +2582,38 @@ w2QjzsKE==" type="audio/wav">
                 showCornerAlert('⚖️ Select Weight First', 'weight-alert', 3000);
             }, 1800);
         };
+
+        // Load Custom Formulas from localStorage on page load
+        (function loadCustomFormulas() {
+            try {
+                const savedFormulas = localStorage.getItem('customFormulas');
+                const savedWeights = localStorage.getItem('weights');
+                
+                if (savedFormulas) {
+                    const customFormulasData = JSON.parse(savedFormulas);
+                    // Merge with existing formulas
+                    Object.assign(formulas, customFormulasData);
+                }
+                
+                if (savedWeights) {
+                    const savedWeightsArray = JSON.parse(savedWeights);
+                    // Add custom weights to weights array
+                    savedWeightsArray.forEach(weight => {
+                        if (!weights.includes(weight)) {
+                            weights.push(weight);
+                        }
+                    });
+                }
+                
+                // Update dropdown with all weights
+                updateWeightDropdown();
+                
+                // Display custom formulas if any
+                displayCustomFormulas();
+            } catch (e) {
+                console.log('No custom formulas to load');
+            }
+        })();
     </script>
 </body>
 </html>
