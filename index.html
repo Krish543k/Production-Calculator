@@ -1416,7 +1416,7 @@
         <div class="settings-section">
             <label class="settings-label">📦 Select Weight</label>
             <select class="weight-dropdown" id="weightDropdown" onchange="changeWeightManually()">
-                <option value="0">70g</option>
+                <option value="0">S1 70g</option>
                 <option value="1">300g</option>
                 <option value="2">500g</option>
                 <option value="3">850g</option>
@@ -1658,27 +1658,27 @@ w2QjzsKE==" type="audio/wav">
 
     <script>
         let isCalculating = false;
-        let currentWeightIndex = 1; // Start with 300g (index 1) instead of 70g (index 0)
+        let currentWeightIndex = 1; // Start with 300g (index 1) instead of S1 70g (index 0)
         let soundEnabled = true; // Sound enabled by default
         let alertTimeout = null;
         let calculationTimeout = null;
         let customFormulas = {}; // Store custom formulas
-        const weights = ['70g', '300g', '500g', '850g', '900g', '1kg', '2kg', '3kg', '3.2kg', '4kg', '5kg', '6kg'];
+        const weights = ['S1 70g', '300g', '500g', '850g', '900g', '1kg', '2kg', '3kg', '3.2kg', '4kg', '5kg', '6kg'];
         
         // Formulas for each weight
         const formulas = {
-            '70g': { pouchToShipper: 2, shipperToPallet: 48, pouchToPallet: 96, palletToTray: 20, speed: 0, unit: 'Met' },
-            '300g': { pouchToShipper: 24, shipperToPallet: 42, pouchToPallet: 1008, palletToTray: 20, speed: 40, unit: 'Pouch' },
-            '500g': { pouchToShipper: 24, shipperToPallet: 36, pouchToPallet: 864, palletToTray: 20, speed: 40, unit: 'Pouch' },
-            '850g': { pouchToShipper: 12, shipperToPallet: 50, pouchToPallet: 600, palletToTray: 20, speed: 40, unit: 'Pouch' },
-            '900g': { pouchToShipper: 12, shipperToPallet: 50, pouchToPallet: 600, palletToTray: 20, speed: 40, unit: 'Pouch' },
-            '1kg': { pouchToShipper: 12, shipperToPallet: 50, pouchToPallet: 600, palletToTray: 20, speed: 40, unit: 'Pouch' },
-            '2kg': { pouchToShipper: 6, shipperToPallet: 40, pouchToPallet: 240, palletToTray: 20, speed: 30, unit: 'Pouch' },
-            '3kg': { pouchToShipper: 4, shipperToPallet: 40, pouchToPallet: 160, palletToTray: 20, speed: 25, unit: 'Pouch' },
-            '3.2kg': { pouchToShipper: 4, shipperToPallet: 40, pouchToPallet: 160, palletToTray: 20, speed: 25, unit: 'Pouch' },
-            '4kg': { pouchToShipper: 4, shipperToPallet: 32, pouchToPallet: 128, palletToTray: 20, speed: 21, unit: 'Pouch' },
-            '5kg': { pouchToShipper: 2, shipperToPallet: 60, pouchToPallet: 120, palletToTray: 20, speed: 10, unit: 'Pouch' },
-            '6kg': { pouchToShipper: 2, shipperToPallet: 45, pouchToPallet: 90, palletToTray: 20, speed: 0, unit: 'Pouch' }
+            'S1 70g': { pouchToShipper: 2, shipperToPallet: 48, pouchToPallet: 96, speed: 3, unit: 'Met' },
+            '300g': { pouchToShipper: 24, shipperToPallet: 42, pouchToPallet: 1008, speed: 40, unit: 'Pouch' },
+            '500g': { pouchToShipper: 24, shipperToPallet: 36, pouchToPallet: 864, speed: 40, unit: 'Pouch' },
+            '850g': { pouchToShipper: 12, shipperToPallet: 50, pouchToPallet: 600, speed: 40, unit: 'Pouch' },
+            '900g': { pouchToShipper: 12, shipperToPallet: 50, pouchToPallet: 600, speed: 40, unit: 'Pouch' },
+            '1kg': { pouchToShipper: 12, shipperToPallet: 50, pouchToPallet: 600, speed: 40, unit: 'Pouch' },
+            '2kg': { pouchToShipper: 6, shipperToPallet: 40, pouchToPallet: 240, speed: 30, unit: 'Pouch' },
+            '3kg': { pouchToShipper: 4, shipperToPallet: 40, pouchToPallet: 160, speed: 25, unit: 'Pouch' },
+            '3.2kg': { pouchToShipper: 4, shipperToPallet: 40, pouchToPallet: 160, speed: 25, unit: 'Pouch' },
+            '4kg': { pouchToShipper: 4, shipperToPallet: 32, pouchToPallet: 128, speed: 21, unit: 'Pouch' },
+            '5kg': { pouchToShipper: 2, shipperToPallet: 60, pouchToPallet: 120, speed: 10, unit: 'Pouch' },
+            '6kg': { pouchToShipper: 2, shipperToPallet: 45, pouchToPallet: 90, speed: 8, unit: 'Pouch' }
         };
 
         // Settings functions
@@ -1884,7 +1884,7 @@ w2QjzsKE==" type="audio/wav">
             listDiv.innerHTML = '<div style="color: #00ffff; font-size: 13px; font-weight: 600; margin-bottom: 10px; border-top: 1px solid rgba(0, 255, 255, 0.3); padding-top: 10px;">📋 Custom Formulas:</div>';
             
             // Show only custom formulas (not default ones)
-            const defaultWeights = ['70g', '300g', '500g', '850g', '900g', '1kg', '2kg', '3kg', '3.2kg', '4kg', '5kg', '6kg'];
+            const defaultWeights = ['S1 70g', '300g', '500g', '850g', '900g', '1kg', '2kg', '3kg', '3.2kg', '4kg', '5kg', '6kg'];
             
             weights.forEach((weight) => {
                 if (!defaultWeights.includes(weight)) {
